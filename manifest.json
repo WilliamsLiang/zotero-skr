@@ -1,0 +1,19 @@
+{
+	"manifest_version": 2,
+	"name": "Smart Knowledge Review",
+	"version": "1.0",
+	"description": "This is a tool used to generate a review based on the relevant literature provided by users.",
+	"homepage_url": "https://github.com/zotero/make-it-red",
+	"applications": {
+		"zotero": {
+			"id": "SKR@zotero.org",
+			"update_url": "https://zotero-download.s3.amazonaws.com/tmp/make-it-red/updates-2.0.json",
+			"strict_min_version": "6.999",
+			"strict_max_version": "7.0.*"
+		}
+	},
+	"icons": {
+		"16": "content/icons/favicon-16x16.png",
+		"32": "content/icons/favicon-32x32.png"
+	}
+}
