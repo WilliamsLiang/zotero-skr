@@ -1,4 +1,4 @@
-MakeItRed = {
+SmartKnowledgeReview = {
 	id: null,
 	version: null,
 	rootURI: null,
@@ -14,25 +14,25 @@ MakeItRed = {
 	},
 	
 	log(msg) {
-		Zotero.debug("Make It Red: " + msg);
+		Zotero.debug("Smart Knowledge Review: " + msg);
 	},
 	
 	addToWindow(window) {
 		let doc = window.document;
 		
 		// Add a stylesheet to the main Zotero pane
-		let link1 = doc.createElement('link');
-		link1.id = 'make-it-red-stylesheet';
-		link1.type = 'text/css';
-		link1.rel = 'stylesheet';
-		link1.href = this.rootURI + 'style.css';
-		doc.documentElement.appendChild(link1);
-		this.storeAddedElement(link1);
+		// let link1 = doc.createElement('link');
+		// link1.id = 'make-it-red-stylesheet';
+		// link1.type = 'text/css';
+		// link1.rel = 'stylesheet';
+		// link1.href = this.rootURI + 'style.css';
+		// doc.documentElement.appendChild(link1);
+		// this.storeAddedElement(link1);
 		
 		// Use Fluent for localization
-		window.MozXULElement.insertFTLIfNeeded("make-it-red.ftl");
+		window.MozXULElement.insertFTLIfNeeded("smart-knowledge-review.ftl");
 		
-		// Add menu option
+		// 增加到右键菜单的范例
 		let menu_review = doc.createXULElement('menuitem');
 		menu_review.id = 'smart-knowledge-review-right-key';
 		menu_review.setAttribute('type', 'checkbox');
@@ -42,22 +42,26 @@ MakeItRed = {
 				const items = Zotero.getActiveZoteroPane().getSelectedItems();
 				for (const item of items) {
 					const abstract = item.getField('abstractNote');
+					const title = item.getField('title');
 					if (abstract) {
 						Zotero.debug(abstract);
 					}
 				}
-				Zotero.alert("完成", "摘要已发送到后端！");
+				// Zotero.alert("完成", "摘要已发送到后端！");
+				Zotero.debug("[SKR] 展开用户的交互页面....");
+				Zotero.skr.UserPage.openCardManagerTab(items);
 			});
 		doc.getElementById('zotero-itemmenu').appendChild(menu_review);
 		this.storeAddedElement(menu_review);
-
+		
+		// 增加到顶部菜单的范例
 		let menuitem = doc.createXULElement('menuitem');
-		menuitem.id = 'make-it-green-instead';
+		menuitem.id = 'smart-knowledge-review-menu';
 		menuitem.setAttribute('type', 'checkbox');
-		menuitem.setAttribute('data-l10n-id', 'make-it-red-green-instead');
+		menuitem.setAttribute('data-l10n-id', 'smart-knowledge-review-menu-name');
 		// MozMenuItem#checked is available in Zotero 7
 		menuitem.addEventListener('command', () => {
-			MakeItRed.toggleGreen(window, menuitem.checked);
+			Zotero.skr.UserPage.openCardManager({});
 		});
 		doc.getElementById('menu_viewPopup').appendChild(menuitem);
 
@@ -89,7 +93,7 @@ MakeItRed = {
 		for (let id of this.addedElementIDs) {
 			doc.getElementById(id)?.remove();
 		}
-		doc.querySelector('[href="make-it-red.ftl"]').remove();
+		doc.querySelector('[href="smart-knowledge-review.ftl"]').remove();
 	},
 	
 	removeFromAllWindows() {
