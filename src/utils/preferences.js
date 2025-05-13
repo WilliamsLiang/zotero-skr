@@ -71,16 +71,16 @@ MakeItRed_Preferences = {
     init: function () {
         Zotero.debug("YES!");
 
-        document.getElementById("prefs-button-check-input").addEventListener("command", async () => {
+        document.getElementById("prefs-button-check-reset").addEventListener("command", async () => {
             Zotero.debug("[SKR]start reseting information.......");
-            Zotero.Prefs.set("extensions.zotero.review.apiurl", "http://172.17.65.44:8000/v1");
+            Zotero.Prefs.set("extensions.zotero.review.apiurl", "http://0.0.0.0:8000/v1");
             Zotero.Prefs.set("extensions.zotero.review.apikey", "qwen2.5-72b");
             Zotero.Prefs.set("extensions.zotero.review.model", "Qwen2.5-72B-Instruct-AWQ");
             // Zotero.debug(document.getElementById('llm-api-url-input').value);
             LLMConnectionTester.testConnection();
         });
 
-        document.getElementById("prefs-button-check-reset").addEventListener("command", async () => {
+        document.getElementById("prefs-button-check-input").addEventListener("command", async () => {
             Zotero.debug("[SKR]start checking Internet environment.......");
             Zotero.Prefs.set("extensions.zotero.review.apiurl", document.getElementById('llm-api-url-input').value);
             Zotero.Prefs.set("extensions.zotero.review.apikey", document.getElementById('llm-api-key-input').value);

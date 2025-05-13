@@ -13,5 +13,6 @@ tsconfig.tsbuildinfo
 .env
 .scaffold
 .xpi
+.git_noupload
 build
 logs
