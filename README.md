@@ -1,39 +1,42 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/zotcard.png">
+  <img src="src/chrome/icons/favicon-32x32.png">
 </p>
 <p align="center">
   <a href="https://www.zotero.org">
     <img src="https://img.shields.io/badge/Zotero-7-red" alt="Zotero-7">
   </a>
-  <a href="https://github.com/018/zotcard/stargazers">
-    <img src="https://img.shields.io/github/stars/018/zotcard?label=Stars" alt="element-ui">
+  <a href="https://github.com/WilliamsLiang/zotero-skr/stargazers">
+    <img src="https://img.shields.io/github/stars/WilliamsLiang/zotero-skr?label=Stars" alt="element-ui">
   </a>
-  <a href="https://github.com/018/zotcard/releases">
-    <img src="https://img.shields.io/github/downloads/018/zotcard/total?label=Downloads" alt="element-ui">
+  <a href="https://github.com/WilliamsLiang/zotero-skr/releases">
+    <img src="https://img.shields.io/github/downloads/WilliamsLiang/zotero-skr/total?label=Downloads" alt="element-ui">
   </a>
 </p>
 
-English | [简体中文](https://github.com/018/zotcard/blob/main/README_CN.md)
+English | [简体中文](https://github.com/WilliamsLiang/zotero-skr/blob/master/README_CN.md)
 
 ## Introduction
 
-ZotCard is a plug-in for Zotero, which is a card note-taking enhancement tool. It provides card templates (such as concept card, character card, golden sentence card, etc., by default, you can customize other card templates), so you can write cards quickly. In addition, it helps you sort cards and standardize card formats.
+Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature review. It offers the following core functionalities: 
+1. Automatically generating literature reviews and search engine queries based on the papers selected by the user. 
+2. Automatically collecting papers under user-selected tags to generate reviews and search engine queries.
+
+
 
 ## Getting started
 
 - Step 1, download the latest version zotcard: [Download](https://github.com/018/zotcard/releases);
 - Step 2: Zotero - Tools - Add-ons - ⚙️ - Install Add-on From File... , select the plug-in xpi file;
-- Step 3, right-click the item - ZotCard - summary card, you can quickly create the card according to the template.
 
-  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1_en.gif" width="600"/>
+  <!-- <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1_en.gif" width="600"/> -->
 
 ## Video
 
-- [bilibili](https://space.bilibili.com/404131635)
+<!-- - [bilibili](https://space.bilibili.com/404131635) -->
 
 ## Features
 
-- Fast card building: Preset card template, support custom card module.
+<!-- - Fast card building: Preset card template, support custom card module.
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/setting_en.png" width="600"/>
 - Card management: Basic card operation, batch operation edit, copy, delete, move, print  and so on.
@@ -47,47 +50,14 @@ ZotCard is a plug-in for Zotero, which is a card note-taking enhancement tool. I
 - Card report: Statistics of the status of the card since you wrote the card, including classified summary statistics, label summary statistics, weekly/monthly/annual summary statistics, and annual analysis statistics.
 
   <img src="https://raw.githubusercontent.com/018/zotcard/main/image/report_en.png" width="600"/>
-- Set up Backup/Restore/Reset: ZotCard Settings can be backed up/restore/reset from the ZotCard configuration page of Zotero Settings.
+- Set up Backup/Restore/Reset: ZotCard Settings can be backed up/restore/reset from the ZotCard configuration page of Zotero Settings. -->
 
-## Advanced
 
-Zotcard custom CARDS give you more space, but need you to know a little [HTML](https://www.runoob.com/html/html-tutorial.html).
 
-```html
-<h1>## Quotes Card - <span><Title></span></h1>
-<p><strong>Original</strong>: <span>${text ? text : "<extract>"}</span></p>
-<p><strong>Repeat</strong>: <span><Repeat it in your own words></span></p>
-<p><strong>Implications</strong>: <span><What are the implications></span></p>
-<p><strong>Reference</strong>: ${itemType && itemType === "book" ? `<a href="${itemLink}">${authors}《${title}》(${year}) P<span><Page></span></a>` : `<a href="${collectionLink}">${collectionName}</a>`}</p>
-<p><strong>Tag</strong>: [none]</p>
-<p><strong>Date</strong>: ${today}</p>
-```
+<!-- ## Donate
 
-Insert Special characters such as, <,>,Spaces, &, ", ', newlines, and delimiters can be inserted at "◉".
+<img src="https://raw.githubusercontent.com/018/zotcard/main/src/chrome/content/images/wechat-alipay.png" style="zoom:70%;float:left" /> -->
 
-If you want to insert an emoji, you can do so at 🤪.
-
-If you want to insert a field from Zotero, you can do so in Fields.
-
-The following are double plate templates:
-
-```html
-<h3>## Review card - <span style="color: #bbbbbb;"><title></span></h3>\n
-<p>- <strong>backdrop</strong>：<span style="color: #bbbbbb;"><Describe the background to what happened, how it caused the rematch.></span></p>
-<p>- <strong>course</strong>：<span style="color: #bbbbbb;"><Describe the process by which things are sent, and how they are handled and the results.></span></p>
-<p>- <strong>enlighten</strong>：<span style="color: #bbbbbb;"><What inspiration can be gained from this matter and how to improve it in the future.></span></p>
-<p>- <strong>date</strong>：{today}</p>
-```
-
-Welcome to come here to find and share your card template: [Visit](https://github.com/018/zotcard/discussions/2).
-
-## Donate
-
-<img src="https://raw.githubusercontent.com/018/zotcard/main/src/chrome/content/images/wechat-alipay.png" style="zoom:70%;float:left" />
-
-OR
-
-<a href="https://www.buymeacoffee.com/0x18" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ## License
 
