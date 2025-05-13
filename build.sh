@@ -1,2 +1,4 @@
 # shell
-zip -r zotero-for-review-1.0.xpi *
+cd src
+zip -r ../skr-1.0.0.xpi *
+cd ../

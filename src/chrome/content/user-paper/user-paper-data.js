@@ -6,7 +6,7 @@ let tabID = Zotero.getMainWindow().Zotero_Tabs.selectedID;
 Zotero.debug('[SKR]' + tabID);
 if (tabID) {
     let tab = Zotero.getMainWindow().Zotero_Tabs._getTab(tabID);
-    if (tab && tab.tab && tab.tab.type === 'library' && tab.tab.id.startsWith('skr-userpage-')) {
+    if (tab && tab.tab && tab.tab.type === 'library' && tab.tab.id.startsWith('skr-user-paper-')) {
         dataIn = tab.tab.data ? tab.tab.data.dataIn : undefined;
         _filters = tab.tab.data ? tab.tab.data.filters : undefined;
 
@@ -75,6 +75,7 @@ const addPaperinfo = (dataIn) => {
 };
 
 window.addEventListener("load", function() {
+    Zotero.debug('[SKR]'+JSON.stringify(dataIn));  
     for (const item of dataIn) {
         const paper_key = item.getField('key');
         const abstract = item.getField('abstractNote');

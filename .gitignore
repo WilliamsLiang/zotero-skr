@@ -12,5 +12,6 @@ tsconfig.tsbuildinfo
 # Scaffold
 .env
 .scaffold
+.xpi
 build
 logs

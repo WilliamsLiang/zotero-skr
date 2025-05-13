@@ -1,16 +1,14 @@
 if (!Zotero.skr) Zotero.skr = {};
-if (!Zotero.skr.UserPage) Zotero.skr.UserPage = {};
+if (!Zotero.skr.UserTag) Zotero.skr.UserTag = {};
 
-Zotero.skr.UserPage = Object.assign(Zotero.skr.UserPage, {
+Zotero.skr.UserTag = Object.assign(Zotero.skr.UserTag, {
 
 	// http://udn.realityripple.com/docs/Web/API/Window/open#Window_features
 
-	openCardManager(items) {
-        Zotero.debug("[skr] start load script skr-userpage.js");
-		let io = {
-			dataIn: items,
-		}
-		let win = Zotero.getMainWindow().openDialog('chrome://skr/content/userpage/userpage.html', 'userpage', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight/2 + ',width=' + Zotero.getMainWindow().screen.availWidth/2, io);
+	openCardManager() {
+        Zotero.debug("[skr] start load script skr-tag-page.html");
+		let io = {}
+		let win = Zotero.getMainWindow().openDialog('chrome://skr/content/user-tag/user-tag.html', 'user-tag', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + Zotero.getMainWindow().screen.availHeight*0.75 + ',width=' + Zotero.getMainWindow().screen.availWidth*0.75, io);
         win.focus();
 
 	},
@@ -29,14 +27,13 @@ Zotero.skr.UserPage = Object.assign(Zotero.skr.UserPage, {
 		return winCardManager;
 	},
 
-	openCardManagerTab(items) {
+	openCardManagerTab() {
 		let { id, container } = Zotero.getMainWindow().Zotero_Tabs.add({
-			id: 'skr-userpage-' + Zotero.Utilities.randomString(),
+			id: 'skr-user-tag-' + Zotero.Utilities.randomString(),
 			type: 'library',
-			title: Zotero.skr.L10ns.getString('skr-multi-user-page'),
+			title: Zotero.skr.L10ns.getString('skr-multi-user-tag'),
 			index: Zotero.getMainWindow().Zotero_Tabs._tabs.length,
 			data: {
-				dataIn: items,
 			},
 			select: true,
 			preventJumpback: true,
@@ -49,7 +46,7 @@ Zotero.skr.UserPage = Object.assign(Zotero.skr.UserPage, {
 		iframe.setAttribute('class', 'skr-userpage');
 		iframe.setAttribute('flex', '1');
 		iframe.setAttribute('type', 'content');
-		iframe.setAttribute('src', 'chrome://skr/content/userpage/userpage.html');
+		iframe.setAttribute('src', 'chrome://skr/content/user-paper/user-paper.html');
 		container.appendChild(iframe);
 
 		iframe.docShell.windowDraggingAllowed = true;
@@ -59,7 +56,7 @@ Zotero.skr.UserPage = Object.assign(Zotero.skr.UserPage, {
 		let tabCardManagers = [];
 		for (let index = 0; index < Zotero.getMainWindow().Zotero_Tabs._tabs.length; index++) {
 			const element = Zotero.getMainWindow().Zotero_Tabs._tabs[index];
-			if (element.id.startsWith('skr-userpage-')) {
+			if (element.id.startsWith('skr-user-tag')) {
 				tabCardManagers.push(element);
 			}
 		}

@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title data-l10n-id="skr-multi-user-page"></title>
+	<link href="../css/cloudflare.min.css" rel="stylesheet">
+	<link rel="localization" href="smart-knowledge-review.ftl" />
+    <script src="../js/switch-module.js"></script>
+	<!-- 确保访问Zotero的核心功能 -->
+	<script src="chrome://zotero/content/include.js"></script>
+	<!-- <script src="user-paper-data.js"></script> -->
+    <style>
+        /* 自定义样式 */
+        .tab-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+		/* 结果面板样式 */
+        #review-by-paper-result {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <nav class="tab-bar flex bg-white shadow-md mb-4">
+        <button class="tab-btn active py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="review_by_tag" data-l10n-id="skr-user-tag-by-selected" />
+        <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="retrieval_by_tag" data-l10n-id="skr-user-tag-by-tag" />
+        <!-- <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="settings">设置</button> -->
+    </nav>
+    <div class="page-container container mx-auto px-4">
+        <!-- 根据标签生成页面 -->
+        <div id="review_by_tag" class="page bg-white p-4 rounded-md shadow-md mb-4">
+			<h2 class="text-lg font-bold mb-2">标签组合</h2>
+			<button id="tag-add" class="add-btn bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors duration-300" data-ll10n-id="skr-user-tag-by-added" />
+			<div id="tag-combination" class="mt-4 border border-gray-300 p-4 rounded-md">
+				<div class="tag-combination-item mb-2 flex items-center">
+					<input type="text" class="flex-1 border border-gray-300 p-2 rounded-md mr-2" placeholder="输入标签">
+					<input type="text" class="flex-1 border border-gray-300 p-2 rounded-md mr-2" placeholder="输入标签">
+					<button class="delete-btn bg-red-500 text-white py-1 px-2 rounded-md hover:bg-red-600 transition-colors duration-300">-</button>
+				</div>
+			</div>
+			<div class="input-area flex mb-4">
+                <textarea class="flex-1 border border-gray-300 p-2 rounded-md mr-2 resize-none" placeholder="输入分析指令..."></textarea>
+                <button class="submit-btn bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300" data-l10n-id="skr-user-tag-by-submit" />
+            </div>
+			<div id="review-by-tag-result" class="result-panel border border-gray-300 p-2 rounded-md min-h-[100px]"></div>
+        </div>
+        <!-- 已选中文献页面 -->
+        <div id="retrieval_by_tag" class="page active bg-white p-4 rounded-md shadow-md mb-4">
+			<div class="input-area flex mb-4">
+                <textarea id="review-by-paper-demand" class="flex-1 border border-gray-300 p-2 rounded-md mr-2 resize-none" placeholder="输入分析指令..."></textarea>
+                <button id="review-by-paper" class="submit-btn bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300" data-l10n-id="skr-user-tag-by-submit" />
+            </div>
+			<div class="container mx-auto p-4">
+				<h1 class="text-2xl font-bold mb-4" data-l10n-id="skr-user-tag-list"></h1>
+				<div id="list-container" class="space-y-4"></div>
+			</div>
+            <div id="review-by-paper-result" class="result-panel border border-gray-300 p-2 rounded-md min-h-[100px]"></div>
+        </div>
+    </div>
+    <script>
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const pages = document.querySelectorAll('.page');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const targetPageId = button.dataset.page;
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                    if (page.id === targetPageId) {
+                        page.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

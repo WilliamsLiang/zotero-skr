@@ -50,7 +50,7 @@ async function startup({ id, version, rootURI }) {
 	// 	condition: () => Zotero.getActiveZoteroPane().getSelectedItems().length > 0
 	// });
 	
-	Services.scriptloader.loadSubScript(rootURI + 'utils/skr-userpage.js');
+	Services.scriptloader.loadSubScript(rootURI + 'utils/skr-user-paper.js');
 	Zotero.debug("loadSubScript utils/skr-userpage.js");
 
 	Services.scriptloader.loadSubScript(rootURI + 'utils/smart-knowledge-review.js');

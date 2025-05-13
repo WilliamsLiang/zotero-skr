@@ -49,7 +49,7 @@ SmartKnowledgeReview = {
 				}
 				// Zotero.alert("完成", "摘要已发送到后端！");
 				Zotero.debug("[SKR] 展开用户的交互页面....");
-				Zotero.skr.UserPage.openCardManagerTab(items);
+				Zotero.skr.UserPage.openCardManager(items);
 			});
 		doc.getElementById('zotero-itemmenu').appendChild(menu_review);
 		this.storeAddedElement(menu_review);
@@ -61,7 +61,7 @@ SmartKnowledgeReview = {
 		menuitem.setAttribute('data-l10n-id', 'smart-knowledge-review-menu-name');
 		// MozMenuItem#checked is available in Zotero 7
 		menuitem.addEventListener('command', () => {
-			Zotero.skr.UserPage.openCardManager({});
+			Zotero.skr.UserPage.openCardManagerTab();
 		});
 		doc.getElementById('menu_viewPopup').appendChild(menuitem);
 
