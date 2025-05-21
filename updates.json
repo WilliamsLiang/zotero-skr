@@ -4,8 +4,8 @@
       "updates": [
         {
           "version": "1.0.0",
-          "update_link": "https://github.com/018/zotcard/releases/latest/download/zotcard-3.2.1.xpi",
-          "update_hash": "sha256:34d2cbcd76f6243978f2ecf203bc77574afc68f91db67cd971b815b8ff994690",
+          "update_link": "https://github.com/WilliamsLiang/zotero-skr/releases/download/v1.0.0/skr-win-zotero7-1.0.0.xpi",
+          "update_hash": "sha256:8d677416b175147e29f0917a464be29f40523bc0610a960c5232e432a1ff70c0",
           "applications": {
             "zotero": {
               "strict_min_version": "6.999"
