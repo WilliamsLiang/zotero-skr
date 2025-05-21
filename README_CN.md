@@ -25,16 +25,16 @@ Zotero-skr 是 Zotero 的一款插件，作为文献综述的辅助工具，提�
 
 ## 快速开始
 
-- 第一步：下载最新版本 zotcard: [下载地址](https://github.com/018/zotcard/releases)
-- 第二步：Zotero - 工具 - 插件 - ⚙️ - 从文件安装插件... ，选择插件 xpi 文件
-- 第三步：设置你自己部署的大模型地址或者平台API（例如 openAI）
+* 第一步：下载最新版本 zotcard: [下载地址](https://github.com/WilliamsLiang/zotero-skr/releases)
+* 第二步：Zotero - 工具 - 插件 - ⚙️ - 从文件安装插件... ，选择插件 xpi 文件
+* 第三步：设置你自己部署的大模型地址或者平台API（例如 openAI）
 
 <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/skr_setting.png" width="600"/>
 
-- 第四步：你可以：
+* 第四步：你可以：
 
 1. 选择文献进行分析
-   - SKR 阅读辅助分析
+- SKR 阅读辅助分析
 
 <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/skr_analysis_by_paper.gif" width="600"/>
 
