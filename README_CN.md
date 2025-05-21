@@ -38,15 +38,15 @@ Zotero-skr 是 Zotero 的一款插件，作为文献综述的辅助工具，提�
 
 <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/skr_analysis_by_paper.gif" width="600"/>
 
-- 生成综述或检索式
+   - 生成综述或检索式
 
 <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/review_by_paper.gif" width="600"/>
 
-- 生成检索式
+   - 生成检索式
 
 <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/query_by_paper.gif" width="600"/>
 
-2. 选择综述生成工具，利用你之前的打的标签生成综述
+1. 选择综述生成工具，利用你之前的打的标签生成综述
 
 <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/review_by_tag.gif" width="600"/>
 
