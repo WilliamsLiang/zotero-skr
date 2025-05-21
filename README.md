@@ -33,19 +33,19 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 - Step 4: You can:
 
 1. Select literature for analysis.
-    - SKR Reading Support Analysis
+   - SKR Reading Support Analysis
   
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/skr_analysis_by_paper.gif" width="600"/> 
   
-    - Generate review or query
+   - Generate review or query
   
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/review_by_paper.gif" width="600"/> 
   
-    - Generate query
+   - Generate query
 
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/query_by_paper.gif" width="600"/> 
 
-2. Choose a review generation tool to generate a review using the tags you've previously assigned.
+1. Choose a review generation tool to generate a review using the tags you've previously assigned.
 
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/review_by_tag.gif" width="600"/> 
   <!-- <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1_en.gif" width="600"/> -->
