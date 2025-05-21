@@ -78,6 +78,12 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/src/chrome/content/images/wechat-alipay.png" style="zoom:70%;float:left" /> -->
 
+## Future Work
+
+1. [ ] Optimize LLM prompts  
+2. [ ] Advanced user interaction features (user-designed prompt interaction)  
+3. [ ] Page layout optimization  
+4. [ ] Interoperability with other plugins, e.g., ZotCard
 
 ## License
 
