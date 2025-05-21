@@ -25,38 +25,53 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 
 - Step 1, download the latest version zotcard: [Download](https://github.com/018/zotcard/releases);
 - Step 2: Zotero - Tools - Add-ons - ⚙️ - Install Add-on From File... , select the plug-in xpi file;
-- Step 3: You can:
+- Step 3: Set your own deployed large model address or platform API (e.g., OpenAI)​
+
+<img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/skr_setting.png" width="600"/> 
+
+- Step 4: You can:
 
 1. Select literature for analysis.
    - SKR Reading Support Analysis
+  
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/skr_analysis_by_paper.gif" width="600"/> 
+  
    - Generate review or query
+  
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/review_by_paper.gif" width="600"/> 
+  
+  - Generate query
+
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/query_by_paper.gif" width="600"/> 
+
 2. Choose a review generation tool to generate a review using the tags you've previously assigned.
 
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/review_by_tag.gif" width="600"/> 
   <!-- <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1_en.gif" width="600"/> -->
 
-## Video
+<!-- ## Video -->
 
 <!-- - [bilibili](https://space.bilibili.com/404131635) -->
 
 ## Features
 
-<!-- - Fast card building: Preset card template, support custom card module.
+- Generate a literature review based on the selected documents.
 
-  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/setting_en.png" width="600"/>
-- Card management: Basic card operation, batch operation edit, copy, delete, move, print  and so on.
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/paper_review.png" width="600"/> 
 
-  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/card_en.png" width="600"/>
+- Generate advanced search queries for major literature databases based on the selected documents.
 
-  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/edit_en.png" width="600"/>
-- Read card: Randomly read the card, you can also count the time of reading the card.
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/query.png" width="600"/> 
 
-  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/read_en.png" width="600"/>
-- Card report: Statistics of the status of the card since you wrote the card, including classified summary statistics, label summary statistics, weekly/monthly/annual summary statistics, and annual analysis statistics.
+- Summarize research questions, methodologies, and experimental designs from the selected literature.
 
-  <img src="https://raw.githubusercontent.com/018/zotcard/main/image/report_en.png" width="600"/>
-- Set up Backup/Restore/Reset: ZotCard Settings can be backed up/restore/reset from the ZotCard configuration page of Zotero Settings. -->
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/question.png" width="600"/> 
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/method.png" width="600"/>
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/design.png" width="600"/>
 
+- Automatically match relevant literature based on your selected tags and generate a sectioned review.
 
+  <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/tag_review.png" width="600"/> 
 
 <!-- ## Donate
 
