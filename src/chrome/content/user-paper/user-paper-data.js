@@ -102,7 +102,8 @@ window.addEventListener("load", function() {
     addPaperinfo(dataIn,'list-container-retrieval');
 
     let selectinput_tag = document.getElementById("databaseType");
-    let language_text = Zotero.skr.prompt.getLocal();
+    const selectinput_language = document.getElementById("language");
+    let language_text = selectinput_language.options[selectinput_language.selectedIndex].value;
     selectinput_tag.innerHTML = ''; // 清空现有选项
     all_database = Zotero.skr.prompt.getDataBase(language_text);
     for (const [key, value] of Object.entries(all_database)) {
@@ -115,7 +116,6 @@ window.addEventListener("load", function() {
         selectinput_tag.appendChild(option);
     }
 
-    const selectinput_language = document.getElementById("language");
     selectinput_language.addEventListener('change',async function() {
             // 获取当前组容器
         let selectinput_tag = document.getElementById("databaseType");

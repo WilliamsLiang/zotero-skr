@@ -24,7 +24,7 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 
 ## Getting started
 
-- Step 1, download the latest version zotcard: [Download](https://github.com/018/zotcard/releases);
+- Step 1, download the latest version zotcard: [Download](https://github.com/WilliamsLiang/zotero-skr/releases);
 - Step 2: Zotero - Tools - Add-ons - ⚙️ - Install Add-on From File... , select the plug-in xpi file;
 - Step 3: Set your own deployed large model address or platform API (e.g., OpenAI)​
 
