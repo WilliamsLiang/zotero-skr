@@ -55,11 +55,10 @@ var LLMConnectionTester = {
             }
         } catch (err) {
             // 错误分类处理
-            const msg = err instanceof Zotero.HTTP.TimeoutError ?
-                '⏳ 请求超时' :
-                `❌ ${err.message.substring(0, 50)}`;
+            const msg = '⏳ 请求超时';
             this.updateStatus(msg, '#f56c6c');
         } finally {
+            // 错误分类处理
             btn.disabled = false;
         }
     }
@@ -86,16 +85,23 @@ SKR_Preferences = {
             Zotero.Prefs.set("extensions.zotero.skr.review.apikey", "qwen2.5-72b");
             Zotero.Prefs.set("extensions.zotero.skr.review.model", "Qwen3-32B");
             // Zotero.debug(document.getElementById('llm-api-url-input').value);
+            document.getElementById('llm-api-url-input').value = Zotero.Prefs.get("extensions.zotero.skr.review.apiurl");
+            document.getElementById('llm-api-key-input').value = Zotero.Prefs.get("extensions.zotero.skr.review.apikey");
+            document.getElementById('llm-api-model-input').value = Zotero.Prefs.get("extensions.zotero.skr.review.model");
             // LLMConnectionTester.testConnection();
+            Zotero.skr.requestLLM.init();
         });
 
         document.getElementById("prefs-button-for-check").addEventListener("command", async () => {
             Zotero.debug("[SKR]start checking Internet environment.......");
+            Zotero.debug("[SKR]:"+document.getElementById('llm-api-url-input').value);
+            Zotero.debug("[SKR]:"+Zotero.Prefs.get("extensions.zotero.skr.review.apiurl"));
             Zotero.Prefs.set("extensions.zotero.skr.review.apiurl", document.getElementById('llm-api-url-input').value);
             Zotero.Prefs.set("extensions.zotero.skr.review.apikey", document.getElementById('llm-api-key-input').value);
             Zotero.Prefs.set("extensions.zotero.skr.review.model", document.getElementById('llm-api-model-input').value);
             // Zotero.debug(document.getElementById('llm-api-url-input').value);
             LLMConnectionTester.testConnection();
+            Zotero.skr.requestLLM.init();
         });
     }
 };

@@ -90,6 +90,7 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
     },
     requestStream(data) {
         const xhr = new XMLHttpRequest();
+        Zotero.debug("[SKR]:"+this.apiUrl);
         xhr.open('POST', `${this.apiUrl}/v1/chat/completions`, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.setRequestHeader('Authorization', `Bearer ${this.apiKey}`);
