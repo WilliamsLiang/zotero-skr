@@ -17,9 +17,10 @@ English | [简体中文](https://github.com/WilliamsLiang/zotero-skr/blob/master
 
 ## Introduction
 
-Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature review. It offers the following core functionalities: 
-1. Automatically generating literature reviews and search engine queries based on the papers selected by the user. 
-2. Automatically collecting papers under user-selected tags to generate reviews and search engine queries.
+Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature review. It provides the following core functionalities:
+1. Automatically generates literature reviews and search engine queries based on user-selected papers.
+2. Automatically collects papers under user-specified tags and produces multi-paragraph summaries.
+3. Summarizes research questions, methodologies, and experimental designs from user-selected papers.
 
 ## Getting started
 
