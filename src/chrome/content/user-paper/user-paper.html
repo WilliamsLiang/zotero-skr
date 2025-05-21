@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
     <title data-l10n-id="skr-multi-user-page"></title>
-	<link href="../css/cloudflare.min.css" rel="stylesheet">
-	<link rel="localization" href="smart-knowledge-review.ftl" />
+    <link href="../css/cloudflare.min.css" rel="stylesheet">
+    <!-- <link href="../css/font-awesome.min.css" rel="stylesheet"> -->
+    <link rel="localization" href="smart-knowledge-review.ftl" />
     <script src="../js/switch-module.js"></script>
-	<!-- 确保访问Zotero的核心功能 -->
-	<script src="chrome://zotero/content/include.js"></script>
-	<script src="user-paper-data.js"></script>
+    <script src="../js/marked.min.js"></script>
+    <!-- 确保访问Zotero的核心功能 -->
+    <script src="chrome://zotero/content/include.js"></script>
+    <script src="user-paper-data.js"></script>
     <style>
         /* 自定义样式 */
         .tab-btn.active {
@@ -23,7 +25,7 @@
         .page.active {
             display: block;
         }
-		/* 结果面板样式 */
+        /* 结果面板样式 */
         #review-by-paper-result {
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -33,43 +35,107 @@
             line-height: 1.6;
             color: #333;
         }
+        select {
+            background-color: white !important;
+            -moz-appearance: none !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            position: relative;
+            z-index: 50;
+        }
+        .result-container {
+            max-width: 100%;
+            overflow-x: auto;
+            word-wrap: break-word;
+            box-sizing: border-box;
+        }
+
+        /* 限制 code 块的表现 */
+        .result-container pre {
+            white-space: pre-wrap;  /* 允许换行 */
+            word-break: break-word; /* 处理长单词或术语 */
+            overflow-x: auto;
+            background-color: #f5f5f5;
+            padding: 1em;
+            border-radius: 6px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .result-container code {
+            font-family: Consolas, monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
     <nav class="tab-bar flex bg-white shadow-md mb-4">
-        <button class="tab-btn active py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="library" data-l10n-id="skr-user-paper-by-selected" />
-        <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="dialogue" data-l10n-id="skr-user-paper-by-tag" />
-        <!-- <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="settings">设置</button> -->
+        <button class="tab-btn active py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="library" data-l10n-id="skr-user-paper-by-selected"></button>
+        <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="dialogue" data-l10n-id="skr-user-paper-by-query"></button>
+        <!-- <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="examples" data-l10n-id="skr-user-paper-by-example"></button> -->
     </nav>
     <div class="page-container container mx-auto px-4">
-        <!-- 已选中文献页面 -->
+        <!-- 已选论文综述生成页面 -->
         <div id="library" class="page active bg-white p-4 rounded-md shadow-md mb-4">
-			<div class="input-area flex mb-4">
-                <textarea id="review-by-paper-demand" class="flex-1 border border-gray-300 p-2 rounded-md mr-2 resize-none" placeholder="输入分析指令..."></textarea>
-                <button id="review-by-paper" class="submit-btn bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300" data-l10n-id="skr-user-paper-by-submit" />
+            <div class="container mx-auto p-4">
+                <h1 class="text-2xl font-bold mb-4" data-l10n-id="skr-user-paper-list"></h1>
+                <div id="list-container-review" class="space-y-4"></div>
             </div>
-			<div class="container mx-auto p-4">
-				<h1 class="text-2xl font-bold mb-4" data-l10n-id="skr-user-paper-list"></h1>
-				<div id="list-container" class="space-y-4"></div>
-			</div>
-            <div id="review-by-paper-result" class="result-panel border border-gray-300 p-2 rounded-md min-h-[100px]"></div>
+            <!-- 标题 -->
+            <h2 class="text-xl font-bold text-gray-800 mb-4" data-l10n-id="skr-general-review-demand"></h2>
+            <!-- 文本输入区 -->
+            <textarea id="demand-review-by-paper" class="w-full border border-gray-300 p-3 rounded-md resize-none mb-4 min-h-[120px]" data-l10n-id="skr-user-paper-by-description"></textarea>
+            <!-- 语言选择、下拉框、提交按钮同一行 -->
+            <div class="flex items-center space-x-4 mb-4">
+                <!-- 标签 -->
+                <label for="language-select" class="text-sm text-gray-700 whitespace-nowrap" data-l10n-id="skr-general-language-setting"></label>
+                <!-- 下拉选择 -->
+                <select id="language-select" class="border border-gray-300 p-2 rounded-md bg-white text-gray-800">
+                    <option value="en-US">English</option>
+                    <option value="zh-CN">中文</option>
+                </select>
+                <!-- 提交按钮 -->
+                <button id="review-by-paper" class="ml-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300"data-l10n-id="skr-user-paper-by-submit"></button>
+            </div>
+            <div id="result-review-by-paper" class="result-panel result-container border border-gray-300 p-2 rounded-md min-h-[100px]"></div>
         </div>
-        <!-- 根据标签生成页面 -->
+        <!-- 根据检索式生成页面 -->
         <div id="dialogue" class="page bg-white p-4 rounded-md shadow-md mb-4">
-			<h2 class="text-lg font-bold mb-2">标签组合</h2>
-			<button class="add-btn bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors duration-300">添加</button>
-			<div id="tag-combination" class="mt-4 border border-gray-300 p-4 rounded-md">
-				<div class="tag-combination-item mb-2 flex items-center">
-					<input type="text" class="flex-1 border border-gray-300 p-2 rounded-md mr-2" placeholder="输入标签">
-					<input type="text" class="flex-1 border border-gray-300 p-2 rounded-md mr-2" placeholder="输入标签">
-					<button class="delete-btn bg-red-500 text-white py-1 px-2 rounded-md hover:bg-red-600 transition-colors duration-300">-</button>
-				</div>
-			</div>
-			<div class="input-area flex mb-4">
-                <textarea class="flex-1 border border-gray-300 p-2 rounded-md mr-2 resize-none" placeholder="输入分析指令..."></textarea>
-                <button class="submit-btn bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300" data-l10n-id="skr-user-paper-by-submit" />
+            <h2 class="text-xl font-bold text-dark mb-4 flex items-center" data-l10n-id="skr-user-paper-by-query"></h2>
+            <div class="container mx-auto p-4">
+                <h3 class="text-2xl font-bold mb-4" data-l10n-id="skr-user-paper-list"></h3>
+                <div id="list-container-retrieval" class="space-y-4"></div>
             </div>
-			<div id="review-by-tag-result" class="result-panel border border-gray-300 p-2 rounded-md min-h-[100px]"></div>
+            <!-- 文献检索条件 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="relative z-50">
+                    <label for="language" class="block text-sm font-medium text-gray-700 mb-2" data-l10n-id="skr-general-language-setting"></label>
+                    <select id="language" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 bg-white relative z-50">
+                        <option value="en-US">English</option>
+                        <option value="zh-CN">中文</option>
+                    </select>
+                </div>
+                <div class="relative z-50">
+                    <label for="databaseType" class="block text-sm font-medium text-gray-700 mb-2" data-l10n-id="skr-general-database-setting"></label>
+                    <select id="databaseType" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 bg-white relative z-50">
+                    </select>
+                </div>
+            </div>
+            <!-- 生成要求 -->
+            <div class="mb-6">
+                <label for="demand-retrieval-by-paper" class="block text-sm font-medium text-gray-700 mb-2" data-l10n-id="skr-general-retrieval-demand"></label>
+                <div class="relative">
+                    <textarea id="demand-retrieval-by-paper" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 resize-none" rows="4" data-l10n-id="skr-user-paper-by-description" ></textarea>
+                </div>
+            </div>
+            <!-- 提交按钮 -->
+            <div class="flex justify-center mb-6">
+                <button id="retrieval-by-paper" class="submit-btn bg-blue-500 hover:bg-blue-500/90 text-white font-medium py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl"  data-l10n-id="skr-user-paper-by-submit"></button>
+            </div>
+            <!-- 结果面板 -->
+            <div id="result-retrieval-by-paper" class="result-panel result-container border border-gray-200 rounded-lg p-4 bg-gray-50 min-h-[200px]">
+            </div>
         </div>
     </div>
     <script>

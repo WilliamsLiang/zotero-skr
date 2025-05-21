@@ -1,76 +1,76 @@
-SmartKnowledgeReview = {
+if (!Zotero.skr) Zotero.skr = {};
+
+Zotero.skr.SmartKnowledgeReview = {
 	id: null,
 	version: null,
 	rootURI: null,
 	initialized: false,
 	addedElementIDs: [],
 	
-	init({ id, version, rootURI }) {
+	init({ id, version, rootURI  }) {
 		if (this.initialized) return;
 		this.id = id;
 		this.version = version;
 		this.rootURI = rootURI;
 		this.initialized = true;
+		// Use Fluent for localization
 	},
 	
 	log(msg) {
-		Zotero.debug("Smart Knowledge Review: " + msg);
+		Zotero.debug("[SKR]: " + msg);
 	},
-	
 	addToWindow(window) {
-		let doc = window.document;
-		
-		// Add a stylesheet to the main Zotero pane
-		// let link1 = doc.createElement('link');
-		// link1.id = 'make-it-red-stylesheet';
-		// link1.type = 'text/css';
-		// link1.rel = 'stylesheet';
-		// link1.href = this.rootURI + 'style.css';
-		// doc.documentElement.appendChild(link1);
-		// this.storeAddedElement(link1);
-		
-		// Use Fluent for localization
-		window.MozXULElement.insertFTLIfNeeded("smart-knowledge-review.ftl");
+		this.removeFromWindow(window);
+		var doc = window.document;
+		let pluginID = "skr@zotero.org";
 		
 		// 增加到右键菜单的范例
-		let menu_review = doc.createXULElement('menuitem');
-		menu_review.id = 'smart-knowledge-review-right-key';
-		menu_review.setAttribute('type', 'checkbox');
-		menu_review.setAttribute('data-l10n-id', 'smart-knowledge-review-right-key');
+		let skr_menu_review = doc.createXULElement('menuitem');
+		skr_menu_review.id = 'smart-knowledge-review-right-key';
+		skr_menu_review.setAttribute('type', 'checkbox');
+		skr_menu_review.setAttribute('label', Zotero.skr.L10ns.getString('smart-knowledge-review-right-key'));
 		// MozMenuItem#checked is available in Zotero 7
-		menu_review.addEventListener('command', () => {
+		skr_menu_review.addEventListener('command', () => {
 				const items = Zotero.getActiveZoteroPane().getSelectedItems();
-				for (const item of items) {
-					const abstract = item.getField('abstractNote');
-					const title = item.getField('title');
-					if (abstract) {
-						Zotero.debug(abstract);
-					}
-				}
-				// Zotero.alert("完成", "摘要已发送到后端！");
 				Zotero.debug("[SKR] 展开用户的交互页面....");
-				Zotero.skr.UserPage.openCardManager(items);
+				Zotero.skr.UserPage.openCardManagerTab(items);
 			});
-		doc.getElementById('zotero-itemmenu').appendChild(menu_review);
-		this.storeAddedElement(menu_review);
+		doc.getElementById('zotero-itemmenu').appendChild(skr_menu_review);
+		this.storeAddedElement(skr_menu_review);
+
+		// 增加到右键菜单的范例
+		let skr_menu_review_example = doc.createXULElement('menuitem');
+		skr_menu_review_example.id = 'smart-knowledge-example-dislay';
+		skr_menu_review_example.setAttribute('type', 'checkbox');
+		skr_menu_review_example.setAttribute('label', Zotero.skr.L10ns.getString('smart-knowledge-example-dislay-right-key'));
+		// MozMenuItem#checked is available in Zotero 7
+		skr_menu_review_example.addEventListener('command', () => {
+				const items = Zotero.getActiveZoteroPane().getSelectedItems();
+				Zotero.debug("[SKR] 展开用户的交互页面....");
+				Zotero.skr.UserPage.openExample(items);
+			});
+		doc.getElementById('zotero-itemmenu').appendChild(skr_menu_review_example);
+		this.storeAddedElement(skr_menu_review_example);
 		
 		// 增加到顶部菜单的范例
-		let menuitem = doc.createXULElement('menuitem');
-		menuitem.id = 'smart-knowledge-review-menu';
-		menuitem.setAttribute('type', 'checkbox');
-		menuitem.setAttribute('data-l10n-id', 'smart-knowledge-review-menu-name');
+		let skr_menuitem = doc.createXULElement('menuitem');
+		skr_menuitem.id = 'smart-knowledge-review-menu';
+		skr_menuitem.setAttribute('type', 'checkbox');
+		// skr_menuitem.setAttribute('label', '智能知识顶部菜单');
+		skr_menuitem.setAttribute('label', Zotero.skr.L10ns.getString('smart-knowledge-review-menu-name'));
 		// MozMenuItem#checked is available in Zotero 7
-		menuitem.addEventListener('command', () => {
-			Zotero.skr.UserPage.openCardManagerTab();
+		skr_menuitem.addEventListener('command', () => {
+			Zotero.skr.UserTag.openCardManagerTab();
 		});
-		doc.getElementById('menu_viewPopup').appendChild(menuitem);
+		doc.getElementById('menu_viewPopup').appendChild(skr_menuitem);
+		this.storeAddedElement(skr_menuitem);
 
-		this.storeAddedElement(menuitem);
-
-
+		this.log(JSON.stringify(this.addedElementIDs));
+		this.log(skr_menu_review);
+		this.log(skr_menu_review_example);
+		this.log(skr_menuitem);
 		
 	},
-	
 	addToAllWindows() {
 		var enumerator = Services.wm.getEnumerator("navigator:browser");
 		while (enumerator.hasMoreElements()) {
@@ -93,7 +93,8 @@ SmartKnowledgeReview = {
 		for (let id of this.addedElementIDs) {
 			doc.getElementById(id)?.remove();
 		}
-		doc.querySelector('[href="smart-knowledge-review.ftl"]').remove();
+		this.addedElementIDs.length = 0;
+		// doc.querySelector('[href="smart-knowledge-review.ftl"]').remove();
 	},
 	
 	removeFromAllWindows() {
@@ -103,11 +104,6 @@ SmartKnowledgeReview = {
 			if (!win.ZoteroPane) continue;
 			this.removeFromWindow(win);
 		}
-	},
-	
-	toggleGreen(window, enabled) {
-		window.document.documentElement
-			.toggleAttribute('data-green-instead', enabled);
 	},
 	
 	async main() {

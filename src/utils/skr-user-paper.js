@@ -14,6 +14,14 @@ Zotero.skr.UserPage = Object.assign(Zotero.skr.UserPage, {
         win.focus();
 
 	},
+	openExample(items) {
+		Zotero.debug("[skr] start load script skr-userpage.js");
+		let io = {
+			dataIn: items,
+		}
+		let win = Zotero.getMainWindow().openDialog('chrome://skr/content/example-display/example-display.html', 'user-papaper', 'chrome,menubar=no,toolbar=no,dialog=no,resizable,centerscreen,height=' + (Zotero.getMainWindow().screen.availHeight*0.75) + ',width=' + (Zotero.getMainWindow().screen.availWidth*0.75), io);
+        win.focus();
+	},
 
 	findCardManager() {
 		var wm = Services.wm;

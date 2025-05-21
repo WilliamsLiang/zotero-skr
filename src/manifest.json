@@ -3,7 +3,7 @@
 	"name": "Smart Knowledge Review",
 	"version": "1.0",
 	"description": "This is a tool used to generate a review based on the relevant literature provided by users.",
-	"homepage_url": "https://gitee.com/williamsliang/zotero-for-review",
+	"homepage_url": "https://github.com/WilliamsLiang/zotero-skr",
 	"applications": {
 		"zotero": {
 			"id": "SKR@zotero.org",

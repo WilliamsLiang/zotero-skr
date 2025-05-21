@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <title>研究计划页面</title>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title data-l10n-id="skr-example-display"></title>
+    <link href="../css/cloudflare.min.css" rel="stylesheet">
+    <!-- <link href="../css/font-awesome.min.css" rel="stylesheet"> -->
+    <link rel="localization" href="smart-knowledge-review.ftl" />
+    <script src="../js/switch-module.js"></script>
+    <script src="../js/marked.min.js"></script>
+    <!-- 确保访问Zotero的核心功能 -->
+    <script src="chrome://zotero/content/include.js"></script>
+    <script src="example-dispaly.js"></script>
+    <style>
+    .active-btn {
+        background-color: #2563eb;
+        color: white;
+    }
+    div.leading-relaxed {
+        max-width: 100%;
+        overflow-x: auto;
+        word-wrap: break-word;
+        box-sizing: border-box;
+    }
+
+    /* 限制 code 块的表现 */
+    div.leading-relaxed pre {
+        white-space: pre-wrap;  /* 允许换行 */
+        word-break: break-word; /* 处理长单词或术语 */
+        overflow-x: auto;
+        background-color: #f5f5f5;
+        padding: 1em;
+        border-radius: 6px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    div.leading-relaxed code {
+        font-family: Consolas, monospace;
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-8">
+  <div class="w-full max-w-8xl bg-white shadow-md rounded-xl p-6 space-y-6">
+    <h1 class="text-2xl font-bold text-gray-800 text-center mb-4" data-l10n-id="skr-example-display-title"></h1>
+    <!-- 按钮组 -->
+    <div class="flex justify-center gap-4">
+      <button onclick="showSection('section1')" id="btn1" class="tab-btn px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-100 transition" data-l10n-id="skr-example-display-question"></button>
+      <button onclick="showSection('section2')" id="btn2" class="tab-btn px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-100 transition" data-l10n-id="skr-example-display-method"></button>
+      <button onclick="showSection('section3')" id="btn3" class="tab-btn px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-100 transition" data-l10n-id="skr-example-display-design"></button>
+    </div>
+
+    <!-- 内容区域 -->
+    <div id="section1" class="section bg-gray-50 p-4 rounded-lg shadow-sm">
+      <h2 class="text-xl font-semibold text-blue-600 mb-2" data-l10n-id="skr-example-display-question"></h2>
+      <div id="content1" class="text-gray-700 leading-relaxed" data-l10n-id="skr-general-loading-info"></div>
+    </div>
+
+    <div id="section2" class="section bg-gray-50 p-4 rounded-lg shadow-sm hidden">
+      <h2 class="text-xl font-semibold text-blue-600 mb-2" data-l10n-id="skr-example-display-method"></h2>
+      <div id="content2" class="text-gray-700 leading-relaxed" data-l10n-id="skr-general-loading-info"></div>
+    </div>
+
+    <div id="section3" class="section bg-gray-50 p-4 rounded-lg shadow-sm hidden">
+      <h2 class="text-xl font-semibold text-blue-600 mb-2" data-l10n-id="skr-example-display-design"></h2>
+      <div id="content3" class="text-gray-700 leading-relaxed" data-l10n-id="skr-general-loading-info"></div>
+    </div>
+  </div>
+
+  <script>
+    function showSection(id) {
+      const sections = document.querySelectorAll('.section');
+      const buttons = document.querySelectorAll('.tab-btn');
+      sections.forEach(section => section.classList.add('hidden'));
+      buttons.forEach(btn => btn.classList.remove('active-btn'));
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById('btn' + id.slice(-1)).classList.add('active-btn');
+    }
+  </script>
+</body>
+</html>

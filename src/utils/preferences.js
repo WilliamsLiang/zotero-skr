@@ -2,23 +2,21 @@ var LLMConnectionTester = {
     // 获取当前配置
     getConfig() {
         return {
-            apiUrl: Zotero.Prefs.get("extensions.zotero.review.apiurl"),
-            apiKey: Zotero.Prefs.get("extensions.zotero.review.apikey"),
-            model: Zotero.Prefs.get("extensions.zotero.review.model"),
+            apiUrl: Zotero.Prefs.get("extensions.zotero.skr.review.apiurl"),
+            apiKey: Zotero.Prefs.get("extensions.zotero.skr.review.apikey"),
+            model: Zotero.Prefs.get("extensions.zotero.skr.review.model"),
         };
     },
-
     // 更新状态提示
     updateStatus(text, color = '#666') {
         const label = document.getElementById('api-requests-status');
         label.value = text;
         label.style.color = color;
     },
-
     // 核心测试逻辑
     async testConnection() {
         const { apiUrl, apiKey, model } = this.getConfig();
-        const btn = document.getElementById('prefs-button-check-input');
+        const btn = document.getElementById('prefs-button-for-check');
         Zotero.debug(apiUrl);
         // 输入验证
         if (!apiUrl || !apiKey) {
@@ -34,7 +32,7 @@ var LLMConnectionTester = {
             // 发送测试请求
             const response = await Zotero.HTTP.request(
                 'POST',
-                `${apiUrl}/chat/completions`,
+                `${apiUrl}/v1/chat/completions`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -67,24 +65,35 @@ var LLMConnectionTester = {
     }
 };
 
-MakeItRed_Preferences = {
+SKR_Preferences = {
     init: function () {
         Zotero.debug("YES!");
+        const url_input = document.getElementById("llm-api-url-input");
+        const text_label = document.getElementById("final-url");
+        const url = Zotero.Prefs.get("extensions.zotero.skr.review.apiurl");
+        text_label.textContent = url ? `${url}/v1/chat/completions` : "";
 
-        document.getElementById("prefs-button-check-reset").addEventListener("command", async () => {
-            Zotero.debug("[SKR]start reseting information.......");
-            Zotero.Prefs.set("extensions.zotero.review.apiurl", "http://0.0.0.0:8000/v1");
-            Zotero.Prefs.set("extensions.zotero.review.apikey", "qwen2.5-72b");
-            Zotero.Prefs.set("extensions.zotero.review.model", "Qwen2.5-72B-Instruct-AWQ");
-            // Zotero.debug(document.getElementById('llm-api-url-input').value);
-            LLMConnectionTester.testConnection();
+        url_input.addEventListener("input", (event) => {
+            const text_label = document.getElementById("final-url");
+            const url = event.target.value.trim();
+            text_label.textContent = url ? `${url}/v1/chat/completions` : "";
         });
 
-        document.getElementById("prefs-button-check-input").addEventListener("command", async () => {
+
+        document.getElementById("prefs-button-for-reset").addEventListener("command", async () => {
+            Zotero.debug("[SKR]start reseting information.......");
+            Zotero.Prefs.set("extensions.zotero.skr.review.apiurl", "http://0.0.0.0:8000/v1");
+            Zotero.Prefs.set("extensions.zotero.skr.review.apikey", "qwen2.5-72b");
+            Zotero.Prefs.set("extensions.zotero.skr.review.model", "Qwen3-32B");
+            // Zotero.debug(document.getElementById('llm-api-url-input').value);
+            // LLMConnectionTester.testConnection();
+        });
+
+        document.getElementById("prefs-button-for-check").addEventListener("command", async () => {
             Zotero.debug("[SKR]start checking Internet environment.......");
-            Zotero.Prefs.set("extensions.zotero.review.apiurl", document.getElementById('llm-api-url-input').value);
-            Zotero.Prefs.set("extensions.zotero.review.apikey", document.getElementById('llm-api-key-input').value);
-            Zotero.Prefs.set("extensions.zotero.review.model", document.getElementById('llm-api-model-input').value);
+            Zotero.Prefs.set("extensions.zotero.skr.review.apiurl", document.getElementById('llm-api-url-input').value);
+            Zotero.Prefs.set("extensions.zotero.skr.review.apikey", document.getElementById('llm-api-key-input').value);
+            Zotero.Prefs.set("extensions.zotero.skr.review.model", document.getElementById('llm-api-model-input').value);
             // Zotero.debug(document.getElementById('llm-api-url-input').value);
             LLMConnectionTester.testConnection();
         });

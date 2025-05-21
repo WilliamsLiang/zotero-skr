@@ -46,7 +46,7 @@ Zotero.skr.UserTag = Object.assign(Zotero.skr.UserTag, {
 		iframe.setAttribute('class', 'skr-userpage');
 		iframe.setAttribute('flex', '1');
 		iframe.setAttribute('type', 'content');
-		iframe.setAttribute('src', 'chrome://skr/content/user-paper/user-paper.html');
+		iframe.setAttribute('src', 'chrome://skr/content/user-tag/user-tag.html');
 		container.appendChild(iframe);
 
 		iframe.docShell.windowDraggingAllowed = true;

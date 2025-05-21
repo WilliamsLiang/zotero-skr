@@ -5,23 +5,23 @@ function updateStatus(text, color = '#666') {
     label.style.color = color;
 }
 
-var reviewPrompt = "请根据提供的论文标题和摘要，撰写一段结构清晰、内容紧凑的文献综述段落，旨在概述该研究主题相关领域的重要研究进展与核心观点。综述内容需要满足以下要求：\n \
-重点突出：紧扣论文标题与摘要中的研究主题，围绕核心问题梳理已有文献；\n\
-逻辑清晰：合理组织观点，体现研究演进脉络或不同学术视角；\n\
-引文规范：凡涉及具体研究结论或观点，均需在文中适当位置标注引文标题，便于读者查阅；\n\
-语言学术：表述客观准确，避免主观评价与无根据推论；\n";
-
 function getReviewByPaper(requestData) {
     let paper_info = "";
     for (const item of requestData) {
         const abstract = item['abstract'];
         const title = item['title'];
-        paper_info += `标题：${title}\n摘要：${abstract}\n`;
+        paper_info += `${Zotero.skr.prompt.getLocalQuestion('title')}：${title}\n${Zotero.skr.prompt.getLocalQuestion('abstract')}：${abstract}\n`;
     }
     return paper_info;
 }
 
-
+function getReviewByMultiReview(requestData) {
+    let paper_info = "";
+    for (const text of requestData) {
+        paper_info += `${text}\n\n`;
+    }
+    return paper_info;
+}
 
 if (!Zotero.skr) Zotero.skr = {};
 if (!Zotero.skr.requestLLM) Zotero.skr.requestLLM = {};
@@ -40,9 +40,9 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
     
     getConfig() {
         return {
-            apiUrl: Zotero.Prefs.get("extensions.zotero.review.apiurl"),
-            apiKey: Zotero.Prefs.get("extensions.zotero.review.apikey"),
-            model: Zotero.Prefs.get("extensions.zotero.review.model"),
+            apiUrl: Zotero.Prefs.get("extensions.zotero.skr.review.apiurl"),
+            apiKey: Zotero.Prefs.get("extensions.zotero.skr.review.apikey"),
+            model: Zotero.Prefs.get("extensions.zotero.skr.review.model"),
         };
     },
     
@@ -50,15 +50,15 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
     async requestReview(requestData, demand) {
         let paper_info = getReviewByPaper(requestData);
         if (!demand) {
-            demand = "请生成一段话，总结这些文章";
+            demand = Zotero.skr.prompt.getNullPaperPrompt();
         }
-        let user_prmpt = paper_info + "\n" + "综述要求" + demand;
+        let user_prmpt = paper_info + "\n" + "综述要求:" + demand;
         Zotero.debug("[SKR]大模型开始请求....");
         try{
             // 发送模型请求
             const response = await Zotero.HTTP.request(
                 'POST',
-                `${this.apiUrl}/chat/completions`,
+                `${this.apiUrl}/v1/chat/completions`,
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
                     },
                     body: JSON.stringify({
                         model: this.model,
-                        messages: [{ role: "system", content: reviewPrompt }, { role: "user", content: user_prmpt }]
+                        messages: [{ role: "system", content: Zotero.skr.prompt.getreviewPrompt() }, { role: "user", content: user_prmpt }]
                     })
                 }
             );
@@ -84,5 +84,137 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
         }catch(err){
             return {code: 500, msg: err.message};
         }
+    },
+    async sleep(ms) {
+        return new Promise(res => setTimeout(res, ms));
+    },
+    requestStream(data) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${this.apiUrl}/v1/chat/completions`, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Authorization', `Bearer ${this.apiKey}`);
+
+        let buff = '';
+        let status_code = 200;
+
+        let result_obj = {
+            code: 200,
+            text: '',
+            finished: false,
+            next: function() {
+                if(this.code!= 200){
+                    this.finished = true;
+                    return {code: 500, msg: Zotero.skr.L10ns.getString('skr-erro-api-info') , finished: true};
+                }else{
+                    return {code: this.code, msg: this.text , finished: this.finished};
+                }  
+            }
+        }
+        xhr.onreadystatechange = function() {
+            function processChunk(chunk) {
+                const lines = chunk.split(/(\n{2})/); // 按SSE协议分割[6](@ref)
+                let allcontent = '';
+                lines.forEach(line => {
+                    if (line.trim().startsWith('data:')) {
+                        try {
+                            const jsonStr = line.replace('data:', '').trim();
+                            if (jsonStr === '[DONE]') return; // 流式结束标记
+                            const data = JSON.parse(jsonStr);
+                            const content = data.choices[0].delta?.content || '';
+                            allcontent += content;
+                        } catch (e) {
+                            status_code = 500;
+                            allcontent = e.message;
+                        }
+                    }
+                });
+                return { status_code: status_code, msg: allcontent };
+            }
+            if (xhr.readyState === 3) { // 正在接收数据块
+                const chunk = xhr.responseText.substring(buff.length);
+                chunk_result = processChunk(chunk);
+                buff +=chunk
+                // Zotero.debug('[SKR]:'+chunk_result.msg);
+                result_obj.code = chunk_result.status_code;
+                text = chunk_result.msg;
+                if(result_obj.code != 200){
+                    Zotero.debug("[SKR]大模型请求失败，错误代码: " + result_obj.code);
+                    result_obj.text = Zotero.skr.L10ns.getString('skr-erro-api-info');
+                    result_obj.finished = true;
+                }else{
+                    result_obj.text += text
+                }
+                // 实时处理分块数据（如逐字显示）
+            } else if (xhr.readyState === 4) { // 请求完成
+                const chunk = xhr.responseText.substring(buff.length);
+                chunk_result = processChunk(chunk);
+                buff +=chunk
+                // Zotero.debug('[SKR]:'+chunk_result.msg);
+                result_obj.code = chunk_result.status_code;
+                text = chunk_result.msg;
+                if(result_obj.code != 200){
+                    Zotero.debug("[SKR]大模型请求失败，错误代码: " + result_obj.code);
+                    result_obj.text = Zotero.skr.L10ns.getString('skr-erro-api-info');
+                    result_obj.finished = true;
+                }else{
+                    result_obj.text += text
+                }
+                Zotero.debug('最终响应:', result_obj.text);
+                result_obj.finished = true;
+            }
+        };
+        xhr.onerror = function() {
+            result_obj.code = xhr.status;
+            result_obj.text = Zotero.skr.L10ns.getString('skr-erro-api-info');
+        };
+        xhr.send(data);
+        return result_obj;
+    },
+    requestTagReviewStream(requestData, demand) { 
+        let paper_info = getReviewByMultiReview(requestData);
+        let user_prmpt = paper_info + "\n\n" + demand;
+        Zotero.debug("[SKR]大模型开始请求....");
+        Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getreviewTagPrompt());
+        const data = JSON.stringify({
+            model: this.model,
+            messages: [{ role: "system", content: Zotero.skr.prompt.getreviewTagPrompt() }, { role: "user", content: user_prmpt }],
+            stream: true,
+        });
+        return this.requestStream(data);
+    },
+    requestReviewStream(requestData, demand) { 
+        let paper_info = getReviewByPaper(requestData);
+        let user_prmpt = paper_info + "\n\n" + demand;
+        Zotero.debug("[SKR]大模型开始请求....");
+        Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getreviewPrompt());
+        const data = JSON.stringify({
+            model: this.model,
+            messages: [{ role: "system", content: Zotero.skr.prompt.getreviewPrompt() }, { role: "user", content: user_prmpt }],
+            stream: true,
+        });
+        return this.requestStream(data);
+    },
+    requestRetrievalStream(requestData, demand) { 
+        let paper_info = getReviewByPaper(requestData);
+        let user_prmpt = paper_info + "\n\n" + demand;
+        Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getTimestampPrompt()+Zotero.skr.prompt.getRetrievalPrompt());
+        Zotero.debug("[SKR]用户要求: " + demand);
+        const data = JSON.stringify({
+            model: this.model,
+            messages: [{ role: "system", content: Zotero.skr.prompt.getTimestampPrompt()+Zotero.skr.prompt.getRetrievalPrompt() }, { role: "user", content: user_prmpt }],
+            stream: true,
+        });
+        return this.requestStream(data);
+    },
+    requestGeneralStream(requestData, type) { 
+        let paper_info = getReviewByPaper(requestData);
+        let user_prmpt = paper_info
+        Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getExtractinfoPrompt(type));
+        const data = JSON.stringify({
+            model: this.model,
+            messages: [{ role: "system", content: Zotero.skr.prompt.getExtractinfoPrompt(type) }, { role: "user", content: user_prmpt }],
+            stream: true,
+        });
+        return this.requestStream(data);
     },
 });

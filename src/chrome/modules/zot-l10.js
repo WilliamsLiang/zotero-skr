@@ -5,7 +5,7 @@ Zotero.skr.L10ns = Object.assign(Zotero.skr.L10ns, {
     _l10n: new Localization(["smart-knowledge-review.ftl"], true),
     
     init() {
-        Zotero.debug('Zotero.ZotCard.L10ns inited.');
+        Zotero.debug('Zotero.skr.L10ns inited.');
     },
     
     getString(name, params) {

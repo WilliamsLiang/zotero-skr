@@ -25,9 +25,9 @@ const truncateText = (text, maxChars = 200) => {
     return text.length > maxChars ? text.substr(0, maxChars).trim() + '...' : text;
 };
 
-const addPaperinfo = (dataIn) => {
+const addPaperinfo = (dataIn,div_id) => {
     dataIn.forEach(item => {
-        const listContainer = document.getElementById('list-container');
+        const listContainer = document.getElementById(div_id);
 
         const listItem = document.createElement('div');
         listItem.classList.add('bg-white', 'p-4', 'rounded-md', 'shadow-md');
@@ -45,7 +45,6 @@ const addPaperinfo = (dataIn) => {
         
         const titleLabel = document.createElement('span');
         titleLabel.setAttribute("data-l10n-id","user-page-paper-title");
-        titleLabel.textContent = '标题：';
         titleLabel.classList.add('text-gray-500', 'text-sm');
         
         const title = document.createElement('h2');
@@ -74,8 +73,22 @@ const addPaperinfo = (dataIn) => {
     });
 };
 
+function getDataByPapers(div_id) {
+    var requestData = [];
+    const div = document.querySelector("#"+div_id);
+    Zotero.debug("[SKR]开始获取标题摘要数据.....");
+    const checkboxes = div.querySelectorAll('input[type="checkbox"]:checked');
+    for (let i = 0; i < checkboxes.length; i++) {
+        const paper_id = checkboxes[i].id
+        requestData.push({
+            "title": storedData[paper_id]["title"],
+            "abstract": storedData[paper_id]["abstract"]
+        });
+    }
+    return requestData;
+};
+
 window.addEventListener("load", function() {
-    Zotero.debug('[SKR]'+JSON.stringify(dataIn));  
     for (const item of dataIn) {
         const paper_key = item.getField('key');
         const abstract = item.getField('abstractNote');
@@ -85,44 +98,127 @@ window.addEventListener("load", function() {
             "abstract":abstract,
         };
     }
-    Zotero.debug('[SKR]dataIn: ' + JSON.stringify(storedData));
-    addPaperinfo(dataIn);
+    addPaperinfo(dataIn,'list-container-review');
+    addPaperinfo(dataIn,'list-container-retrieval');
 
-    const submit_by_paper = document.getElementById('review-by-paper');
-    submit_by_paper.addEventListener("click", async () => {
-        // 获取所有选中的复选框
-        submit_by_paper.disable = true;
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-        const demand = document.getElementById('review-by-paper-demand').value;
-        const requestData = [];
-        for (let i = 0; i < checkboxes.length; i++) {
-            const paper_id = checkboxes[i].id
-            Zotero.debug(paper_id);
-            requestData.push({
-                "title": storedData[paper_id]["title"],
-                "abstract": storedData[paper_id]["abstract"]
-            });
+    let selectinput_tag = document.getElementById("databaseType");
+    let language_text = Zotero.skr.prompt.getLocal();
+    selectinput_tag.innerHTML = ''; // 清空现有选项
+    all_database = Zotero.skr.prompt.getDataBase(language_text);
+    for (const [key, value] of Object.entries(all_database)) {
+        const option = document.createElement('option')
+        option.value = key;
+        option.text = value;
+        if(key == "") {
+            option.selected = true;
         }
-        div_result = document.getElementById('review-by-paper-result');
-        div_result.textContent = "正在请求中，请稍等...";
-        
-        try{
-            result = await Zotero.skr.requestLLM.requestReview(requestData,demand);
-            Zotero.debug("[SKR]结果:" + JSON.stringify(result));
-            if(result.code != 200){
-                message = "错误代码：" + String(result.code) + "=>" + result.msg;
-                div_result.textContent = message;
-            }else{
-                message = result.msg;
-                div_result.textContent = message;
+        selectinput_tag.appendChild(option);
+    }
+
+    const selectinput_language = document.getElementById("language");
+    selectinput_language.addEventListener('change',async function() {
+            // 获取当前组容器
+        let selectinput_tag = document.getElementById("databaseType");
+        let language_text = this.options[this.selectedIndex].value;
+        selectinput_tag.innerHTML = ''; // 清空现有选项
+        all_database = Zotero.skr.prompt.getDataBase(language_text)
+        for (const [key, value] of Object.entries(all_database)) {
+            const option = document.createElement('option')
+            option.value = key;
+            option.text = value;
+            if(key == "") {
+                option.selected = true;
             }
+            selectinput_tag.appendChild(option);
+        }
+    });
+
+
+    const submit_by_review = document.getElementById('review-by-paper');
+    submit_by_review.addEventListener("click", async () => {
+        // 获取所有选中的复选框
+        submit_by_review.disable = true;
+        const request_data = getDataByPapers('list-container-review');
+        div_result = document.getElementById('result-review-by-paper');
+        div_result.textContent = Zotero.skr.L10ns.getString('skr-excute-api-info');
+        var demand = document.getElementById('demand-review-by-paper').value;
+        if (!demand) {
+            demand = Zotero.skr.prompt.getNullPaperPrompt();
+        }
+        const language_select = document.getElementById("language-select")
+        const language_text = language_select.options[language_select.selectedIndex].value
+        demand = Zotero.skr.prompt.getLocalQuestion("review_requirement") + demand + "\n" + Zotero.skr.prompt.getLocalQuestion("language_requirement") + Zotero.skr.prompt.getLocalQuestion(language_text+"-language");
+        try{
+            result_obj = Zotero.skr.requestLLM.requestReviewStream(request_data,demand);
+            tmp_status = result_obj.next();
+            while(!tmp_status.finished){
+                if(tmp_status.msg.length > 0){
+                    if(tmp_status.code != 200){
+                        message = Zotero.skr.L10ns.getString('skr-erro-info') + String(tmp_status.code) + "=>" + tmp_status.msg;
+                        div_result.textContent = message;
+                        break;
+                    }else{
+                        message = tmp_status.msg;
+                        div_result.innerHTML = marked.parse(message);
+                    }
+                }   
+                await Zotero.skr.requestLLM.sleep(15);
+                tmp_status = result_obj.next();
+            }
+            message = tmp_status.msg;
+            div_result.innerHTML = marked.parse(message);
+            
         }catch(err){
             Zotero.debug(err.message);
-            message = "错误代码：500" + "=>" + err.message;
+            message = Zotero.skr.L10ns.getString('skr-erro-info')+ String(500) + "=>" + err.message;
             div_result.textContent = message;
         }finally{
-            submit_by_paper.disable = false;
+            submit_by_review.disable = false;
         }
+
+    });
+
+    const submit_by_retrieval = document.getElementById('retrieval-by-paper');
+    submit_by_retrieval.addEventListener("click", async () => {
+        // 获取所有选中的复选框
+        submit_by_retrieval.disable = true;
+        const request_data = getDataByPapers('list-container-retrieval');
+        div_result = document.getElementById('result-retrieval-by-paper');
+        div_result.textContent = Zotero.skr.L10ns.getString('skr-excute-api-info');
+        const database_select = document.getElementById("databaseType");
+        const language_select = document.getElementById("language");
+        var database = database_select.options[database_select.selectedIndex].value;
+        var language = language_select.options[language_select.selectedIndex].value;
+        var demand = document.getElementById("demand-retrieval-by-paper").value;
+        demand_all = Zotero.skr.prompt.getRetrievalDemand(database,language,demand)
+        try{
+            result_obj = Zotero.skr.requestLLM.requestRetrievalStream(request_data,demand_all);
+            tmp_status = result_obj.next();
+            while(!tmp_status.finished){
+                if(tmp_status.msg.length > 0){
+                    if(tmp_status.code != 200){
+                        message = Zotero.skr.L10ns.getString('skr-erro-info') + String(tmp_status.code) + "=>" + tmp_status.msg;
+                        div_result.textContent = message;
+                        break;
+                    }else{
+                        message = tmp_status.msg;
+                        div_result.innerHTML = marked.parse(message);
+                    }
+                }   
+                await Zotero.skr.requestLLM.sleep(15);
+                tmp_status = result_obj.next();
+            }
+            message = tmp_status.msg;
+            div_result.innerHTML = marked.parse(message);
+            Zotero.debug("[SKR]检索式生成完成，结果为: " + marked.parse(message));
+        }catch(err){
+            Zotero.debug(err.message);
+            message = Zotero.skr.L10ns.getString('skr-erro-info')+ String(500) + "=>" + err.message;
+            div_result.textContent = message;
+        }finally{
+            submit_by_retrieval.disable = false;
+        }
+
     });
     
 });

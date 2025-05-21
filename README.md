@@ -21,12 +21,16 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 1. Automatically generating literature reviews and search engine queries based on the papers selected by the user. 
 2. Automatically collecting papers under user-selected tags to generate reviews and search engine queries.
 
-
-
 ## Getting started
 
 - Step 1, download the latest version zotcard: [Download](https://github.com/018/zotcard/releases);
 - Step 2: Zotero - Tools - Add-ons - ⚙️ - Install Add-on From File... , select the plug-in xpi file;
+- Step 3: You can:
+
+1. Select literature for analysis.
+   - SKR Reading Support Analysis
+   - Generate review or query
+2. Choose a review generation tool to generate a review using the tags you've previously assigned.
 
   <!-- <img src="https://raw.githubusercontent.com/018/zotcard/main/image/newcard1_en.gif" width="600"/> -->
 
