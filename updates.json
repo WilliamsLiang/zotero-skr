@@ -5,7 +5,7 @@
         {
           "version": "1.1.0",
           "update_link": "https://github.com/WilliamsLiang/zotero-skr/releases/tag/v1.1.0/skr-win-zotero7-1.1.0.xpi",
-          "update_hash": "sha256:f9d22df6101a03ff1047799590800255db5b5856f147f547bb11ca0bc452f303",
+          "update_hash": "sha256:6eb416c0759b7ffd6b9ca2e98825cf7f12553597bae5e939d149f36df32790ec",
           "applications": {
             "zotero": {
               "strict_min_version": "6.999"
