@@ -1,3 +1,4 @@
+var chromeHandle;
 function log(msg) {
 	Zotero.debug("[SKR]:" + msg);
 }
@@ -52,10 +53,13 @@ async function startup({ id, version, rootURI }) {
 
 function shutdown() {
 	log("Shutting down");
+	chromeHandle.destruct();
+	chromeHandle = null;
+
 	Zotero.skr.SmartKnowledgeReview.removeFromAllWindows();
+	Zotero.skr = undefined;
 }
 
 function uninstall() {
-	Zotero.skr = undefined;
 	log("Uninstalled");
 }
