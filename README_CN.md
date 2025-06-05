@@ -34,6 +34,7 @@ Zotero-skr 是 Zotero 的一款插件，作为文献综述的辅助工具，提�
 * 第四步：你可以：
 
 1. 选择文献进行分析
+
 - SKR 阅读辅助分析
 
 <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/skr_analysis_by_paper.gif" width="600"/>
@@ -63,17 +64,24 @@ Zotero-skr 是 Zotero 的一款插件，作为文献综述的辅助工具，提�
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/question.png" width="600"/> 
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/method.png" width="600"/>
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/design.png" width="600"/>
-  
 - 根据你选择标签，自动匹配相关文献，分段落做综述
 
   <img src="https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/images/tag_review.png" width="600"/>
 
 ## 未来工作
 
-1. [ ] 大模型prompt优化  
-2. [ ] 高级用户交互功能（由用户设计prompt交互）  
+1. [ ] 大模型prompt优化
+2. [ ] 高级用户交互功能（由用户设计prompt交互）
 3. [ ] 页面布局优化
-4. [ ] 与其他插件交互，例如ZotCard  
+4. [ ] 与其他插件交互，例如ZotCard
+
+## 开发参考网址
+
+* [cd src
+  zip -r ../build/zotcard-3.2.1.xpi *ZotCar插件](https://github.com/018/zotcard/tree/main)
+* [官方开发文档](https://www.zotero.org/support/dev/client_coding/javascript_api#running_ad_hoc_javascript_in_zotero)
+* [官方范例](https://github.com/zotero/make-it-red)
+* [官方Zotero插件](https://www.zotero.org/support/dev/zotero_7_for_developers)
 
 ## 开源协议
 

@@ -12,6 +12,7 @@ async function onMainWindowLoad({ window }, reason) {
 
 async function onMainWindowUnload({ window }, reason) {
 	// Zotero.skr.SmartKnowledgeReview.removeFromWindow(window);
+	Zotero.skr.SmartKnowledgeReview.removeFromAllWindows();
 }
 
 async function startup({ id, version, rootURI }) {
@@ -19,7 +20,7 @@ async function startup({ id, version, rootURI }) {
 
 	// Services.scriptloader.loadSubScript(rootURI + '/chrome/modules/zot-include.js', { id, version, rootURI });
 	Services.scriptloader.loadSubScript(rootURI + '/chrome/modules/zot-include.js', { id, version, rootURI });
-	Zotero.ZotCard.Logger.log("loadSubScript zot-include.js");
+	log("loadSubScript zot-include.js");
 
 	//将本地目录文件地址映射成网络地址，避免本地文件访问冲突
 	var aomStartup = Cc["@mozilla.org/addons/addon-manager-startup;1"].getService(Ci.amIAddonManagerStartup);

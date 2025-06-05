@@ -25,19 +25,31 @@ const truncateText = (text, maxChars = 200) => {
     return text.length > maxChars ? text.substr(0, maxChars).trim() + '...' : text;
 };
 
-const addPaperinfo = (dataIn,div_id) => {
-    dataIn.forEach(item => {
+const addPaperinfo = (storedData,div_id) => {
+    var i = 0;
+    for(key in storedData) {
+        i = i + 1;
         const listContainer = document.getElementById(div_id);
 
         const listItem = document.createElement('div');
         listItem.classList.add('bg-white', 'p-4', 'rounded-md', 'shadow-md');
 
+        const checkBlock = document.createElement('div');
+        checkBlock.classList.add('flex', 'items-baseline', 'gap-2');
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = true;
-        checkbox.id = item.getField('key');
+        checkbox.id = storedData[key]["key"];
         // checkbox.disabled = !item.isSelectable;
-        listItem.appendChild(checkbox);
+
+        const checkLable = document.createElement('span');
+        checkLable.textContent = storedData[key]["number"];
+        checkLable.classList.add('text-gray-500', 'text-sm');
+
+        checkBlock.appendChild(checkbox);
+        checkBlock.appendChild(checkLable);
+        listItem.appendChild(checkBlock);
         
         // 标题区块
         const titleBlock = document.createElement('div');
@@ -49,7 +61,7 @@ const addPaperinfo = (dataIn,div_id) => {
         
         const title = document.createElement('h2');
         title.classList.add('text-lg', 'font-bold', 'mb-2');
-        title.textContent = item.getField('title');
+        title.textContent = storedData[key]["title"];
 
         titleBlock.append(titleLabel, title);
         listItem.appendChild(titleBlock);
@@ -64,13 +76,13 @@ const addPaperinfo = (dataIn,div_id) => {
         
         const summary = document.createElement('p');
         summary.classList.add('text-gray-600', 'truncate-text', 'flex-1');
-        summary.textContent = truncateText(item.getField('abstractNote'),150);
+        summary.textContent = truncateText(storedData[key]["abstract"],150);
 
         summaryBlock.append(summaryLabel, summary);
         listItem.appendChild(summaryBlock);
 
         listContainer.appendChild(listItem);
-    });
+    }
 };
 
 function getDataByPapers(div_id) {
@@ -89,17 +101,21 @@ function getDataByPapers(div_id) {
 };
 
 window.addEventListener("load", function() {
+    let i = 0;
     for (const item of dataIn) {
         const paper_key = item.getField('key');
         const abstract = item.getField('abstractNote');
         const title = item.getField('title');
+        i = i + 1;
         storedData[paper_key] = {
             "title":title,
             "abstract":abstract,
+            "number":i,
+            "key":paper_key
         };
     }
-    addPaperinfo(dataIn,'list-container-review');
-    addPaperinfo(dataIn,'list-container-retrieval');
+    addPaperinfo(storedData,'list-container-review');
+    addPaperinfo(storedData,'list-container-retrieval');
 
     let selectinput_tag = document.getElementById("databaseType");
     const selectinput_language = document.getElementById("language");
@@ -149,7 +165,7 @@ window.addEventListener("load", function() {
         const language_text = language_select.options[language_select.selectedIndex].value
         demand = Zotero.skr.prompt.getLocalQuestion("review_requirement") + demand + "\n" + Zotero.skr.prompt.getLocalQuestion("language_requirement") + Zotero.skr.prompt.getLocalQuestion(language_text+"-language");
         try{
-            result_obj = Zotero.skr.requestLLM.requestReviewStream(request_data,demand);
+            result_obj = Zotero.skr.requestLLM.requestReviewStreamByNumber(request_data,demand);
             tmp_status = result_obj.next();
             while(!tmp_status.finished){
                 if(tmp_status.msg.length > 0){

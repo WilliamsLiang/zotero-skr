@@ -94,8 +94,6 @@ SKR_Preferences = {
 
         document.getElementById("prefs-button-for-check").addEventListener("command", async () => {
             Zotero.debug("[SKR]start checking Internet environment.......");
-            Zotero.debug("[SKR]:"+document.getElementById('llm-api-url-input').value);
-            Zotero.debug("[SKR]:"+Zotero.Prefs.get("extensions.zotero.skr.review.apiurl"));
             Zotero.Prefs.set("extensions.zotero.skr.review.apiurl", document.getElementById('llm-api-url-input').value);
             Zotero.Prefs.set("extensions.zotero.skr.review.apikey", document.getElementById('llm-api-key-input').value);
             Zotero.Prefs.set("extensions.zotero.skr.review.model", document.getElementById('llm-api-model-input').value);

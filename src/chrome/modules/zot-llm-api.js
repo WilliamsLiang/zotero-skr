@@ -1,16 +1,20 @@
-// 更新状态提示
-function updateStatus(text, color = '#666') {
-    const label = document.getElementById('api-requests-status');
-    label.value = text;
-    label.style.color = color;
-}
-
 function getReviewByPaper(requestData) {
     let paper_info = "";
     for (const item of requestData) {
         const abstract = item['abstract'];
         const title = item['title'];
         paper_info += `${Zotero.skr.prompt.getLocalQuestion('title')}：${title}\n${Zotero.skr.prompt.getLocalQuestion('abstract')}：${abstract}\n`;
+    }
+    return paper_info;
+}
+
+function getReviewByPaperNumber(requestData) {
+    let paper_info = "";
+    for (const item of requestData) {
+        const abstract = item['abstract'];
+        const title = item['title'];
+        const number = item.number ? item.number : 'None';
+        paper_info += `${Zotero.skr.prompt.getLocalQuestion('number')}：${number}\n${Zotero.skr.prompt.getLocalQuestion('title')}：${title}\n${Zotero.skr.prompt.getLocalQuestion('abstract')}：${abstract}\n`;
     }
     return paper_info;
 }
@@ -185,6 +189,18 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
     },
     requestReviewStream(requestData, demand) { 
         let paper_info = getReviewByPaper(requestData);
+        let user_prmpt = paper_info + "\n\n" + demand;
+        Zotero.debug("[SKR]大模型开始请求....");
+        Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getreviewPrompt());
+        const data = JSON.stringify({
+            model: this.model,
+            messages: [{ role: "system", content: Zotero.skr.prompt.getreviewPrompt() }, { role: "user", content: user_prmpt }],
+            stream: true,
+        });
+        return this.requestStream(data);
+    },
+    requestReviewStreamByNumber(requestData, demand) { 
+        let paper_info = getReviewByPaperNumber(requestData);
         let user_prmpt = paper_info + "\n\n" + demand;
         Zotero.debug("[SKR]大模型开始请求....");
         Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getreviewPrompt());

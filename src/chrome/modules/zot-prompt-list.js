@@ -23,6 +23,7 @@ Zotero.skr.prompt = Object.assign(Zotero.skr.prompt, {
                 "design": "实验设计提取：梳理各论文的实验设计，包括实验目的、变量设置、数据来源、实验流程、评估指标与对照方式等；总结常用设计范式及创新点，便于跨研究比较。\n候选方案准备：在完成提取后，请预留结构化信息，供用户后续指令触发生成候选实验设计方案（如标准实验框架、参数设置建议、对照实验设计变体等）。",
                 "title": "标题",
                 "abstract": "摘要",
+                "number": "序号",
                 "zh-CN-language":"中文",
                 "en-US-language":"英文",
                 "review_requirement":"综述要求：",
@@ -33,6 +34,7 @@ Zotero.skr.prompt = Object.assign(Zotero.skr.prompt, {
                 "design": "Experimental Design Extraction: Summarize the experimental design of each paper, including the experimental objectives, variable settings, data sources, procedures, evaluation metrics, and control strategies. Highlight common design patterns as well as innovative aspects to facilitate cross-study comparison.\nCandidate Design Preparation: After extraction, reserve structured information to allow users to later trigger the generation of candidate experimental design schemes (e.g., standard experimental frameworks, parameter setting suggestions, or controlled experiment variants).",
                 "title": "Title",
                 "abstract": "Abstract",
+                "number": "Number",
                 "zh-CN-language":"Chinese",
                 "en-US-language":"English",
                 "review_requirement":"Review Requirements:",
@@ -83,7 +85,7 @@ Zotero.skr.prompt = Object.assign(Zotero.skr.prompt, {
 综述内容需要满足以下要求：\n\
 重点突出：紧扣论文标题与摘要中的研究主题，围绕核心问题梳理已有文献；\n\
 逻辑清晰：合理组织观点，体现研究演进脉络或不同学术视角；\n\
-引文规范：凡涉及具体研究结论或观点，均需在文中适当位置标注引文标题，便于读者查阅；\n\
+引文规范：凡涉及具体研究结论或观点，均需在文中适当位置标注文献序号（如果没有序号，标注引文标题），便于读者查阅；\n\
 语言学术：表述客观准确，避免主观评价与无根据推论；\n\
 用户要求：根据用户提供的综述要求生成综述";
             return reviewPrompt;
@@ -92,7 +94,7 @@ Zotero.skr.prompt = Object.assign(Zotero.skr.prompt, {
 The review should meet the following requirements:\n\
 - Focused: Center around the main research topic as indicated by the titles and abstracts, and organize existing literature around core issues;\n\
 - Logically coherent: Present viewpoints in a clear and structured manner, reflecting the progression of research or contrasting academic perspectives;\n\
-- Proper citation: For any specific findings or viewpoints mentioned, include the paper title as an inline citation to facilitate reference;\n\
+- Proper Citations: When referencing specific research findings or viewpoints, include appropriate in-text citations with reference numbers (or the citation title if no number is available) to aid reader lookup.\n\
 - Academic language: Use objective and precise language, avoiding subjective judgments or unsupported assumptions;\n\
 - User-defined: The review should be generated based on user-provided review instructions.";
             return reviewPrompt
