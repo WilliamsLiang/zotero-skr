@@ -77,8 +77,7 @@ Zotero-skr 是 Zotero 的一款插件，作为文献综述的辅助工具，提�
 
 ## 开发参考网址
 
-* [cd src
-  zip -r ../build/zotcard-3.2.1.xpi *ZotCar插件](https://github.com/018/zotcard/tree/main)
+* [ZotCar插件](https://github.com/018/zotcard/tree/main)
 * [官方开发文档](https://www.zotero.org/support/dev/client_coding/javascript_api#running_ad_hoc_javascript_in_zotero)
 * [官方范例](https://github.com/zotero/make-it-red)
 * [官方Zotero插件](https://www.zotero.org/support/dev/zotero_7_for_developers)

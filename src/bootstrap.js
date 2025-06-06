@@ -32,6 +32,7 @@ async function startup({ id, version, rootURI }) {
 	
 	Zotero.PreferencePanes.register({
 		pluginID: 'SKR@zotero.org',
+		label:'Zotero-SKR',
 		src: rootURI + 'chrome/content/prefernces/preferences.xhtml',
 		scripts: [rootURI + 'utils/preferences.js']
 	});

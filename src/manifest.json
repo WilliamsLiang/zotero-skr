@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
-	"name": "Smart Knowledge Review",
-	"version": "1.0",
+	"name": "Zotero-SKR",
+	"version": "1.1",
 	"description": "This is a tool used to generate a review based on the relevant literature provided by users.",
 	"homepage_url": "https://github.com/WilliamsLiang/zotero-skr",
 	"applications": {
