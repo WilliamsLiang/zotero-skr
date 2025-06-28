@@ -51,3 +51,9 @@ skr-erro-tag-all-selected = Selecting all papers is not allowed!
 
 skr-example-display-right-key = SKR Reading Support Analysis
 smart-knowledge-example-dislay-right-key = SKR Reading Support Analysis
+
+skr-api-write-info = Please fill in the complete configuration
+skr-api-loading-info = Connecting...
+skr-api-connect-info = Connection Established
+skr-api-error-info = Error Code
+skr-api-timeout-info = Request timeout

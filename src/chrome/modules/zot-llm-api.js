@@ -92,16 +92,13 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
     async sleep(ms) {
         return new Promise(res => setTimeout(res, ms));
     },
-    requestStream(data) {
+    requestStream(data,testApiUrl = this.apiUrl,testApiKey = this.apiKey) {
         const xhr = new XMLHttpRequest();
-        Zotero.debug("[SKR]:"+this.apiUrl);
-        xhr.open('POST', `${this.apiUrl}/v1/chat/completions`, true);
+        Zotero.debug("[SKR]:"+testApiUrl);
+        xhr.open('POST', `${testApiUrl}/v1/chat/completions`, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('Authorization', `Bearer ${this.apiKey}`);
-
+        xhr.setRequestHeader('Authorization', `Bearer ${testApiKey}`);
         let buff = '';
-        let status_code = 200;
-
         let result_obj = {
             code: 200,
             text: '',
@@ -109,7 +106,7 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
             next: function() {
                 if(this.code!= 200){
                     this.finished = true;
-                    return {code: 500, msg: Zotero.skr.L10ns.getString('skr-erro-api-info') , finished: true};
+                    return {code: this.code, msg: this.text  , finished: true};
                 }else{
                     return {code: this.code, msg: this.text , finished: this.finished};
                 }  
@@ -117,6 +114,7 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
         }
         xhr.onreadystatechange = function() {
             function processChunk(chunk) {
+                let status_code = 200;
                 const lines = chunk.split(/(\n{2})/); // 按SSE协议分割[6](@ref)
                 let allcontent = '';
                 lines.forEach(line => {
@@ -136,30 +134,56 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
                 return { status_code: status_code, msg: allcontent };
             }
             if (xhr.readyState === 3) { // 正在接收数据块
+                result_obj.code = xhr.status;
                 const chunk = xhr.responseText.substring(buff.length);
                 chunk_result = processChunk(chunk);
                 buff +=chunk
                 // Zotero.debug('[SKR]:'+chunk_result.msg);
-                result_obj.code = chunk_result.status_code;
+                prcessing_status_code = chunk_result.status_code;
                 text = chunk_result.msg;
-                if(result_obj.code != 200){
+                if(result_obj.code != 200 || prcessing_status_code!=200){
                     Zotero.debug("[SKR]大模型请求失败，错误代码: " + result_obj.code);
-                    result_obj.text = Zotero.skr.L10ns.getString('skr-erro-api-info');
+                    let erro_content = '';
+                    try{
+                        const data = JSON.parse(xhr.responseText);
+                        if(data.message){
+                            erro_content = data.message
+                        }else{
+                            erro_content = xhr.responseText? data : Zotero.skr.L10ns.getString('skr-erro-api-info');
+                        }    
+                    }catch(e){
+                        erro_content = Zotero.skr.L10ns.getString('skr-erro-api-info');
+                    }
+                    Zotero.debug("[SKR]大模型请求失败，错误内容： " + erro_content);
+                    result_obj.text = erro_content;
                     result_obj.finished = true;
                 }else{
                     result_obj.text += text
                 }
                 // 实时处理分块数据（如逐字显示）
             } else if (xhr.readyState === 4) { // 请求完成
+                result_obj.code = xhr.status;
                 const chunk = xhr.responseText.substring(buff.length);
                 chunk_result = processChunk(chunk);
                 buff +=chunk
                 // Zotero.debug('[SKR]:'+chunk_result.msg);
-                result_obj.code = chunk_result.status_code;
+                prcessing_status_code = chunk_result.status_code;
                 text = chunk_result.msg;
-                if(result_obj.code != 200){
+                if(result_obj.code != 200 || prcessing_status_code!=200){
                     Zotero.debug("[SKR]大模型请求失败，错误代码: " + result_obj.code);
-                    result_obj.text = Zotero.skr.L10ns.getString('skr-erro-api-info');
+                    let erro_content = '';
+                    try{
+                        const data = JSON.parse(xhr.responseText);
+                        if(data.message){
+                            erro_content = data.message
+                        }else{
+                            erro_content = xhr.responseText? data : Zotero.skr.L10ns.getString('skr-erro-api-info');
+                        }    
+                    }catch(e){
+                        erro_content = Zotero.skr.L10ns.getString('skr-erro-api-info');
+                    }
+                    Zotero.debug("[SKR]大模型请求失败，错误内容： " + erro_content);
+                    result_obj.text = erro_content;
                     result_obj.finished = true;
                 }else{
                     result_obj.text += text
@@ -170,7 +194,14 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
         };
         xhr.onerror = function() {
             result_obj.code = xhr.status;
-            result_obj.text = Zotero.skr.L10ns.getString('skr-erro-api-info');
+            let content = '';
+            try{
+                const data = JSON.parse(xhr.responseText);
+                content = data.message? data.message : Zotero.skr.L10ns.getString('skr-erro-api-info');
+            }catch(e){
+                content = xhr.responseText? xhr.responseText : Zotero.skr.L10ns.getString('skr-erro-api-info');
+            }
+            result_obj.text = content;
         };
         xhr.send(data);
         return result_obj;

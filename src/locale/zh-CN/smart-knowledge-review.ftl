@@ -51,3 +51,9 @@ skr-erro-tag-all-selected = 拒绝选择所有文献！
 
 skr-example-display-right-key = SKR 辅助阅读分析
 smart-knowledge-example-dislay-right-key = SKR 辅助阅读分析
+
+skr-api-write-info = 请填写完整配置
+skr-api-loading-info = 正在连接...
+skr-api-connect-info = 连接正常
+skr-api-erro-info = 错误代码
+skr-api-timeout-info = 请求超时

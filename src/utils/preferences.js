@@ -20,42 +20,48 @@ var LLMConnectionTester = {
         Zotero.debug(apiUrl);
         // 输入验证
         if (!apiUrl || !apiKey) {
-            this.updateStatus('❌ 请填写完整配置', '#f56c6c');
+            this.updateStatus('❌ ' + Zotero.skr.L10ns.getString('skr-api-write-info'), '#f56c6c');
             return;
         }
 
         // 禁用按钮防止重复点击
         btn.disabled = true;
-        this.updateStatus('⌛ 正在连接...', '#409eff');
+        this.updateStatus('⌛ ' + Zotero.skr.L10ns.getString('skr-api-loading-info'), '#409eff');
+
+        const data = JSON.stringify({
+            model: model,
+            messages: [{ role: "user", content: "who are you?" }],
+            stream: true,
+            enable_thinking: false,
+        });
 
         try {
             // 发送测试请求
-            const response = await Zotero.HTTP.request(
-                'POST',
-                `${apiUrl}/v1/chat/completions`,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: model,
-                        messages: [{ role: "user", content: "who are you?" }],
-                        max_tokens: 1
-                    }),
-                    timeout: 5000
-                }
-            );
-            Zotero.debug(response.response);
-            // 处理响应
-            if (response.status === 200) {
-                this.updateStatus('✅ 连接正常', '#67c23a');
-            } else {
-                this.updateStatus(`❌ 错误代码: ${response.status}`, '#f56c6c');
+            result_obj = Zotero.skr.requestLLM.requestStream(data,apiUrl,apiKey);
+            tmp_status = result_obj.next();
+            while(!tmp_status.finished){
+                if(tmp_status.msg.length > 0){
+                    if(tmp_status.code != 200){
+                        this.updateStatus(`❌ ` + Zotero.skr.L10ns.getString('skr-api-erro-info')+` ${tmp_status.code} : ` + `${tmp_status.msg}`, '#f56c6c');
+                        break;
+                    }else{
+                        this.updateStatus('✅ ' + Zotero.skr.L10ns.getString('skr-api-connect-info'), '#67c23a');
+                    }
+                }   
+                await Zotero.skr.requestLLM.sleep(15);
+                tmp_status = result_obj.next();
             }
+            Zotero.debug("[SKR]大模型请求状态: " + JSON.stringify(tmp_status));
+            if(tmp_status.msg.length > 0){
+                if(tmp_status.code != 200){
+                    this.updateStatus(`❌ ` + Zotero.skr.L10ns.getString('skr-api-erro-info')+` ${tmp_status.code} : ` + `${tmp_status.msg}`, '#f56c6c');
+                }else{
+                    this.updateStatus('✅ ' + Zotero.skr.L10ns.getString('skr-api-connect-info'), '#67c23a');
+                }
+            }   
         } catch (err) {
             // 错误分类处理
-            const msg = '⏳ 请求超时';
+            const msg = '⏳ ' + Zotero.skr.L10ns.getString('skr-api-timeout-info');
             this.updateStatus(msg, '#f56c6c');
         } finally {
             // 错误分类处理
