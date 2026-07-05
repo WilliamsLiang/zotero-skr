@@ -7,6 +7,18 @@
     <!-- 输入组部分，包含API URL、API Key和模型输入框 -->
     <groupbox style="display: flex; flex-direction: column; gap: 10px;">
         <!-- 标题注释，原标题标签被注释掉，可根据需要启用 -->
+        <!-- Provider Selection Dropdown -->
+        <hbox style="display: flex; align-items: center;">
+            <label data-l10n-id="prefs-apiurl-provider" style="min-width: 120px; margin-right: 10px;"></label>
+            <menulist id="llm-api-provider-input" preference="extensions.zotero.skr.review.apiprovider" style="flex: 1;">
+                <menupopup>
+                    <menuitem data-l10n-id="provider-openai" value="openai" />
+                    <menuitem data-l10n-id="provider-gemini" value="gemini" />
+                    <menuitem data-l10n-id="provider-anthropic" value="anthropic" />
+                </menupopup>
+            </menulist>
+        </hbox>
+
         <!-- API URL输入框 -->
         <hbox style="display: flex; align-items: center;">
             <label data-l10n-id="prefs-apiurl-url" style="min-width: 120px; margin-right: 10px;"></label>

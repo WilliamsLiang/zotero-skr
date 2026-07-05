@@ -75,6 +75,14 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/src/chrome/content/images/wechat-alipay.png" style="zoom:70%;float:left" /> -->
 
+## Recent Updates (v1.1.7)
+
+- **Multi-Model Support**: Added native compatibility for OpenAI, Google Gemini, and Anthropic (Claude) APIs.
+- **Robust SSE Parsing**: Completely refactored the underlying SSE (Server-Sent Events) streaming parser to safely handle packet fragmentation and empty data structures, resolving JSON parse errors.
+- **Improved Settings UI**: Enhanced Zotero 7 preferences panel compatibility with native XUL elements for smooth API provider switching and dynamic URL completion.
+- **Clean Uninstall & Reload**: Redesigned the DOM injection cleanup logic to aggressively prevent duplicate context menus and ghost elements when reloading or upgrading the plugin.
+- **MaaS Platform Compatibility**: Added built-in support for Aliyun DashScope's modified Anthropic API (e.g. `qwen3.7-plus`) by properly structuring `thinking: disabled` fields.
+
 ## Future Work
 
 1. [ ] Optimize LLM prompts

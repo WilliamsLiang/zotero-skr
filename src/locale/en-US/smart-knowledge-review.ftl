@@ -1,3 +1,10 @@
+prefs-apiurl-provider = API Provider:
+provider-openai = 
+    .label = OpenAI Compatible (DeepSeek, Qwen, Kimi, GLM, etc.)
+provider-gemini = 
+    .label = Gemini
+provider-anthropic = 
+    .label = Anthropic (Claude)
 prefs-apiurl-url = LLM URL:
 prefs-apiurl-apikey = API KEY:
 prefs-apiurl-model = Model Name:

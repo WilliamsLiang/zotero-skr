@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Zotero-SKR",
-	"version": "1.1.1",
+	"version": "1.1.7",
 	"description": "This is a tool used to generate a review based on the relevant literature provided by users.",
 	"homepage_url": "https://github.com/WilliamsLiang/zotero-skr",
 	"applications": {
@@ -9,7 +9,7 @@
 			"id": "SKR@zotero.org",
 			"update_url": "https://raw.githubusercontent.com/WilliamsLiang/zotero-skr/master/updates.json",
 			"strict_min_version": "6.999",
-			"strict_max_version": "7.*.*"
+			"strict_max_version": "9.*.*"
 		}
 	},
 	"icons": {

@@ -36,10 +36,11 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
 	model: null,
 	
 	init() {
-		const { apiUrl, apiKey, model } = this.getConfig();
+		const { apiUrl, apiKey, model, apiprovider } = this.getConfig();
         this.apiUrl = apiUrl;
         this.apiKey = apiKey;
         this.model = model;
+        this.apiprovider = apiprovider;
 	},
     
     getConfig() {
@@ -47,6 +48,7 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
             apiUrl: Zotero.Prefs.get("extensions.zotero.skr.review.apiurl"),
             apiKey: Zotero.Prefs.get("extensions.zotero.skr.review.apikey"),
             model: Zotero.Prefs.get("extensions.zotero.skr.review.model"),
+            apiprovider: Zotero.Prefs.get("extensions.zotero.skr.review.apiprovider") || "openai",
         };
     },
     
@@ -75,9 +77,9 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
                 }
             );
             // Zotero.debug(response);
-            status_code = response.status;
-            responseData = JSON.parse(response.response);
-            text = responseData.choices[0].message.content;
+            let status_code = response.status;
+            let responseData = JSON.parse(response.response);
+            let text = responseData.choices[0].message.content;
             if(status_code != 200){
                 Zotero.debug("[SKR]大模型请求失败，错误代码: " + status_code);
                 return {code: status_code, msg: text};
@@ -92,13 +94,70 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
     async sleep(ms) {
         return new Promise(res => setTimeout(res, ms));
     },
-    requestStream(data,testApiUrl = this.apiUrl,testApiKey = this.apiKey) {
+    requestStream(messages, testApiUrl = this.apiUrl, testApiKey = this.apiKey, testModel = this.model, testProvider = this.apiprovider) {
         const xhr = new XMLHttpRequest();
-        Zotero.debug("[SKR]:"+testApiUrl);
-        xhr.open('POST', `${testApiUrl}/v1/chat/completions`, true);
+        let url = "";
+        let requestDataStr = "";
+        
+        if (testProvider === "gemini") {
+            url = `${testApiUrl}/v1beta/models/${testModel}:streamGenerateContent?alt=sse`;
+            let geminiContents = [];
+            let systemInstruction = null;
+            for (let msg of messages) {
+                if (msg.role === "system") {
+                    systemInstruction = { role: "system", parts: [{ text: msg.content }] };
+                } else {
+                    geminiContents.push({ role: msg.role === "user" ? "user" : "model", parts: [{ text: msg.content }] });
+                }
+            }
+            let reqData = { contents: geminiContents };
+            if (systemInstruction) reqData.systemInstruction = systemInstruction;
+            requestDataStr = JSON.stringify(reqData);
+        } else if (testProvider === "anthropic") {
+            url = `${testApiUrl}/v1/messages`;
+            let systemInstruction = "";
+            let anthropicMessages = [];
+            for (let msg of messages) {
+                if (msg.role === "system") {
+                    systemInstruction = msg.content;
+                } else {
+                    anthropicMessages.push(msg);
+                }
+            }
+            let reqData = {
+                model: testModel,
+                max_tokens: 4096,
+                messages: anthropicMessages,
+                stream: true,
+                thinking: { type: "disabled" }
+            };
+            if (systemInstruction) {
+                reqData.system = systemInstruction;
+            }
+            requestDataStr = JSON.stringify(reqData);
+        } else {
+            url = `${testApiUrl}/v1/chat/completions`;
+            requestDataStr = JSON.stringify({
+                model: testModel,
+                messages: messages,
+                stream: true
+            });
+        }
+        
+        Zotero.debug("[SKR] API Request URL: " + url);
+        xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.setRequestHeader('Authorization', `Bearer ${testApiKey}`);
+        if (testProvider === "gemini" && !testApiKey.startsWith("Bearer")) {
+            xhr.setRequestHeader('x-goog-api-key', testApiKey);
+        } else if (testProvider === "anthropic") {
+            xhr.setRequestHeader('x-api-key', testApiKey);
+            xhr.setRequestHeader('anthropic-version', '2023-06-01');
+        } else {
+            xhr.setRequestHeader('Authorization', `Bearer ${testApiKey}`);
+        }
+        
         let buff = '';
+        let unprocessed = '';
         let result_obj = {
             code: 200,
             text: '',
@@ -113,83 +172,81 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
             }
         }
         xhr.onreadystatechange = function() {
-            function processChunk(chunk) {
+            function processChunk(chunk, isFinal = false) {
                 let status_code = 200;
-                const lines = chunk.split(/(\n{2})/); // 按SSE协议分割[6](@ref)
                 let allcontent = '';
-                lines.forEach(line => {
-                    if (line.trim().startsWith('data:')) {
-                        try {
+                
+                unprocessed += chunk;
+                let events = unprocessed.split(/\n\n/);
+                
+                if (!isFinal) {
+                    unprocessed = events.pop(); // Keep incomplete event in buffer
+                } else {
+                    unprocessed = ''; // Flush everything
+                }
+                
+                events.forEach(eventStr => {
+                    if (!eventStr.trim()) return;
+                    const lines = eventStr.split('\n');
+                    lines.forEach(line => {
+                        if (line.trim().startsWith('data:')) {
                             const jsonStr = line.replace('data:', '').trim();
-                            if (jsonStr === '[DONE]') return; // 流式结束标记
-                            const data = JSON.parse(jsonStr);
-                            const content = data.choices[0].delta?.content || '';
-                            allcontent += content;
-                        } catch (e) {
-                            status_code = 500;
-                            allcontent = e.message;
+                            if (jsonStr === '[DONE]') return;
+                            
+                            Zotero.debug("[SKR] SSE Stream JSON: " + jsonStr);
+                            try {
+                                const dataObj = JSON.parse(jsonStr);
+                                let content = '';
+                                if (dataObj.choices && dataObj.choices.length > 0 && dataObj.choices[0].delta) {
+                                    content = dataObj.choices[0].delta.content || '';
+                                } else if (dataObj.candidates && dataObj.candidates.length > 0 && dataObj.candidates[0].content && dataObj.candidates[0].content.parts) {
+                                    content = dataObj.candidates[0].content.parts[0].text || '';
+                                } else if (dataObj.delta && dataObj.delta.text) { 
+                                    content = dataObj.delta.text || '';
+                                } else if (dataObj.type === 'content_block_delta' && dataObj.delta && dataObj.delta.text) {
+                                    content = dataObj.delta.text || '';
+                                }
+                                allcontent += content;
+                            } catch (e) {
+                                Zotero.debug("[SKR] JSON Parse Error: " + e.message + " | Str: " + jsonStr);
+                                status_code = 500;
+                                allcontent += "\n[Parse Error: " + e.message + "]";
+                            }
                         }
-                    }
+                    });
                 });
                 return { status_code: status_code, msg: allcontent };
             }
-            if (xhr.readyState === 3) { // 正在接收数据块
+
+            if (xhr.readyState === 3 || xhr.readyState === 4) { 
                 result_obj.code = xhr.status;
                 const chunk = xhr.responseText.substring(buff.length);
-                chunk_result = processChunk(chunk);
-                buff +=chunk
-                // Zotero.debug('[SKR]:'+chunk_result.msg);
-                prcessing_status_code = chunk_result.status_code;
-                text = chunk_result.msg;
-                if(result_obj.code != 200 || prcessing_status_code!=200){
-                    Zotero.debug("[SKR]大模型请求失败，错误代码: " + result_obj.code);
-                    let erro_content = '';
-                    try{
-                        const data = JSON.parse(xhr.responseText);
-                        if(data.message){
-                            erro_content = data.message
-                        }else{
-                            erro_content = xhr.responseText? data : Zotero.skr.L10ns.getString('skr-erro-api-info');
-                        }    
-                    }catch(e){
-                        erro_content = Zotero.skr.L10ns.getString('skr-erro-api-info');
-                    }
-                    Zotero.debug("[SKR]大模型请求失败，错误内容： " + erro_content);
-                    result_obj.text = erro_content;
+                buff += chunk;
+                
+                if (result_obj.code !== 200) {
+                    Zotero.debug("[SKR] API请求失败，状态码: " + result_obj.code + " 响应原文: " + xhr.responseText);
+                    result_obj.text = xhr.responseText || "API 请求失败";
+                    result_obj.finished = true;
+                    return;
+                }
+                
+                let chunk_result = processChunk(chunk, xhr.readyState === 4);
+                let prcessing_status_code = chunk_result.status_code;
+                let text = chunk_result.msg;
+                
+                if(prcessing_status_code !== 200){
+                    Zotero.debug("[SKR] 数据流解析失败，错误代码: " + prcessing_status_code);
+                    result_obj.text += text;
+                    result_obj.code = prcessing_status_code;
                     result_obj.finished = true;
                 }else{
-                    result_obj.text += text
+                    result_obj.text += text;
                 }
-                // 实时处理分块数据（如逐字显示）
-            } else if (xhr.readyState === 4) { // 请求完成
-                result_obj.code = xhr.status;
-                const chunk = xhr.responseText.substring(buff.length);
-                chunk_result = processChunk(chunk);
-                buff +=chunk
-                // Zotero.debug('[SKR]:'+chunk_result.msg);
-                prcessing_status_code = chunk_result.status_code;
-                text = chunk_result.msg;
-                if(result_obj.code != 200 || prcessing_status_code!=200){
-                    Zotero.debug("[SKR]大模型请求失败，错误代码: " + result_obj.code);
-                    let erro_content = '';
-                    try{
-                        const data = JSON.parse(xhr.responseText);
-                        if(data.message){
-                            erro_content = data.message
-                        }else{
-                            erro_content = xhr.responseText? data : Zotero.skr.L10ns.getString('skr-erro-api-info');
-                        }    
-                    }catch(e){
-                        erro_content = Zotero.skr.L10ns.getString('skr-erro-api-info');
-                    }
-                    Zotero.debug("[SKR]大模型请求失败，错误内容： " + erro_content);
-                    result_obj.text = erro_content;
+                
+                if (xhr.readyState === 4) {
+                    Zotero.debug('[SKR]最终响应: ' + result_obj.text);
                     result_obj.finished = true;
-                }else{
-                    result_obj.text += text
                 }
-                Zotero.debug('最终响应:', result_obj.text);
-                result_obj.finished = true;
             }
         };
         xhr.onerror = function() {
@@ -203,7 +260,7 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
             }
             result_obj.text = content;
         };
-        xhr.send(data);
+        xhr.send(requestDataStr);
         return result_obj;
     },
     requestTagReviewStream(requestData, demand) { 
@@ -211,58 +268,38 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
         let user_prmpt = paper_info + "\n\n" + demand;
         Zotero.debug("[SKR]大模型开始请求....");
         Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getreviewTagPrompt());
-        const data = JSON.stringify({
-            model: this.model,
-            messages: [{ role: "system", content: Zotero.skr.prompt.getreviewTagPrompt() }, { role: "user", content: user_prmpt }],
-            stream: true,
-        });
-        return this.requestStream(data);
+        const messages = [{ role: "system", content: Zotero.skr.prompt.getreviewTagPrompt() }, { role: "user", content: user_prmpt }];
+        return this.requestStream(messages);
     },
     requestReviewStream(requestData, demand) { 
         let paper_info = getReviewByPaper(requestData);
         let user_prmpt = paper_info + "\n\n" + demand;
         Zotero.debug("[SKR]大模型开始请求....");
         Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getreviewPrompt());
-        const data = JSON.stringify({
-            model: this.model,
-            messages: [{ role: "system", content: Zotero.skr.prompt.getreviewPrompt() }, { role: "user", content: user_prmpt }],
-            stream: true,
-        });
-        return this.requestStream(data);
+        const messages = [{ role: "system", content: Zotero.skr.prompt.getreviewPrompt() }, { role: "user", content: user_prmpt }];
+        return this.requestStream(messages);
     },
     requestReviewStreamByNumber(requestData, demand) { 
         let paper_info = getReviewByPaperNumber(requestData);
         let user_prmpt = paper_info + "\n\n" + demand;
         Zotero.debug("[SKR]大模型开始请求....");
         Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getreviewPrompt());
-        const data = JSON.stringify({
-            model: this.model,
-            messages: [{ role: "system", content: Zotero.skr.prompt.getreviewPrompt() }, { role: "user", content: user_prmpt }],
-            stream: true,
-        });
-        return this.requestStream(data);
+        const messages = [{ role: "system", content: Zotero.skr.prompt.getreviewPrompt() }, { role: "user", content: user_prmpt }];
+        return this.requestStream(messages);
     },
     requestRetrievalStream(requestData, demand) { 
         let paper_info = getReviewByPaper(requestData);
         let user_prmpt = paper_info + "\n\n" + demand;
         Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getTimestampPrompt()+Zotero.skr.prompt.getRetrievalPrompt());
         Zotero.debug("[SKR]用户要求: " + demand);
-        const data = JSON.stringify({
-            model: this.model,
-            messages: [{ role: "system", content: Zotero.skr.prompt.getTimestampPrompt()+Zotero.skr.prompt.getRetrievalPrompt() }, { role: "user", content: user_prmpt }],
-            stream: true,
-        });
-        return this.requestStream(data);
+        const messages = [{ role: "system", content: Zotero.skr.prompt.getTimestampPrompt()+Zotero.skr.prompt.getRetrievalPrompt() }, { role: "user", content: user_prmpt }];
+        return this.requestStream(messages);
     },
     requestGeneralStream(requestData, type) { 
         let paper_info = getReviewByPaper(requestData);
         let user_prmpt = paper_info
         Zotero.debug("[SKR]大模型请求数据: " + Zotero.skr.prompt.getExtractinfoPrompt(type));
-        const data = JSON.stringify({
-            model: this.model,
-            messages: [{ role: "system", content: Zotero.skr.prompt.getExtractinfoPrompt(type) }, { role: "user", content: user_prmpt }],
-            stream: true,
-        });
-        return this.requestStream(data);
+        const messages = [{ role: "system", content: Zotero.skr.prompt.getExtractinfoPrompt(type) }, { role: "user", content: user_prmpt }];
+        return this.requestStream(messages);
     },
 });

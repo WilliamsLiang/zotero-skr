@@ -89,12 +89,19 @@ Zotero.skr.SmartKnowledgeReview = {
 	
 	removeFromWindow(window) {
 		var doc = window.document;
-		// Remove all elements added to DOM
-		for (let id of this.addedElementIDs) {
-			doc.getElementById(id)?.remove();
+		// Use known IDs to aggressively remove all matching elements, including duplicates caused by previous bugs
+		let ids = [
+			'smart-knowledge-review-right-key',
+			'smart-knowledge-example-dislay',
+			'smart-knowledge-review-menu'
+		];
+		for (let id of ids) {
+			let elements = doc.querySelectorAll('#' + id);
+			for (let elem of elements) {
+				elem.remove();
+			}
 		}
 		this.addedElementIDs.length = 0;
-		// doc.querySelector('[href="smart-knowledge-review.ftl"]').remove();
 	},
 	
 	removeFromAllWindows() {

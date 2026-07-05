@@ -1,3 +1,10 @@
+prefs-apiurl-provider = API 提供商:
+provider-openai = 
+    .label = OpenAI 兼容格式 (支持 DeepSeek, Qwen, Kimi, GLM 等)
+provider-gemini = 
+    .label = Gemini
+provider-anthropic = 
+    .label = Anthropic (Claude)
 prefs-apiurl-url = 大模型网址:
 prefs-apiurl-apikey = API KEY:
 prefs-apiurl-model = 模型名称：
