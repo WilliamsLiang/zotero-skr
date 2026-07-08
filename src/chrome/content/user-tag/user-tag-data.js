@@ -25,6 +25,52 @@ const truncateText = (text, maxChars = 200) => {
     return text.length > maxChars ? text.substr(0, maxChars).trim() + '...' : text;
 };
 
+window.skrTagSortMode = 'count';
+
+function sortOptions(optionsArray) {
+    if (window.skrTagSortMode === 'count') {
+        return optionsArray.sort((a, b) => b.count - a.count);
+    } else {
+        return optionsArray.sort((a, b) => a.text.localeCompare(b.text));
+    }
+}
+
+function buildCollectionTree(collections) {
+    let colMap = new Map();
+    collections.forEach(c => colMap.set(c.id, { ...c, children: [] }));
+    let rootCollections = [];
+    collections.forEach(c => {
+        if (c.parentID) {
+            let parent = colMap.get(c.parentID);
+            if (parent) {
+                parent.children.push(colMap.get(c.id));
+            } else {
+                rootCollections.push(colMap.get(c.id));
+            }
+        } else {
+            rootCollections.push(colMap.get(c.id));
+        }
+    });
+    return rootCollections;
+}
+
+function flattenCollectionTree(nodes, prefix = '') {
+    let result = [];
+    nodes.sort((a, b) => a.name.localeCompare(b.name));
+    nodes.forEach((node, index) => {
+        let currentPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+        result.push({
+            value: node.id,
+            text: `${currentPrefix}. ${node.name} (${node.count})`,
+            count: node.count
+        });
+        if (node.children && node.children.length > 0) {
+            result = result.concat(flattenCollectionTree(node.children, currentPrefix));
+        }
+    });
+    return result;
+}
+
 function switchPage() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const pages = document.querySelectorAll('.page');
@@ -63,61 +109,79 @@ async function addElement(tag_div_id){
     newTagCombination.className = 'tag-combination-item mb-2 flex items-center';
 
     const selectinput_library = document.createElement('select');
-    selectinput_library.classList.add('collection-list','w-20','border','border-gray-300','p-2','rounded-md','mr-2');
-    // selectinput.setAttribute("data-l10n-id","skr-user-tag-by-description");
-    libraries = await Zotero.skr.sqlconnector.getCollections();
-    libraries[-1] = Zotero.skr.L10ns.getString('skr-user-tag-for-collections');
-    for (const [key, value] of Object.entries(libraries)) {
+    selectinput_library.classList.add('collection-list','w-20','form-control','p-2','mr-2');
+    
+    let libraries = await Zotero.skr.sqlconnector.getCollectionsWithCount();
+    let rootNodes = buildCollectionTree(libraries);
+    let libOptions = flattenCollectionTree(rootNodes);
+    
+    const allLibOption = document.createElement('option');
+    allLibOption.value = -1;
+    allLibOption.text = Zotero.skr.L10ns.getString('skr-user-tag-for-collections');
+    allLibOption.selected = true;
+    selectinput_library.appendChild(allLibOption);
+
+    for (let optData of libOptions) {
         const option = document.createElement('option');
-        option.value = key;
-        option.text = value;
-        if(key == -1) {
-            option.selected = true;
-        }
+        option.value = optData.value;
+        option.text = optData.text;
+        option.dataset.count = optData.count;
         selectinput_library.appendChild(option);
     }
 
     let libraryId = selectinput_library.options[selectinput_library.selectedIndex].value;
     const selectinput_tag = document.createElement('select');
-    selectinput_tag.classList.add('tag-list','w-20','border','border-gray-300','p-2','rounded-md','mr-2');
-    // selectinput.setAttribute("data-l10n-id","skr-user-tag-by-description");
-    tags = await Zotero.skr.sqlconnector.getTags(libraryId);
-    tags[-1] = Zotero.skr.L10ns.getString('skr-user-tag-for-tags');
-    for (const [key, value] of Object.entries(tags)) {
+    selectinput_tag.classList.add('tag-list','w-20','form-control','p-2','mr-2');
+    
+    let tags = await Zotero.skr.sqlconnector.getTagsWithCount(libraryId);
+    let tagOptions = tags.map(tag => ({ value: tag.id, text: `${tag.name} (${tag.count})`, count: tag.count }));
+    tagOptions = sortOptions(tagOptions);
+
+    const allTagOption = document.createElement('option');
+    allTagOption.value = -1;
+    allTagOption.text = Zotero.skr.L10ns.getString('skr-user-tag-for-tags');
+    allTagOption.selected = true;
+    selectinput_tag.appendChild(allTagOption);
+
+    for (let optData of tagOptions) {
         const option = document.createElement('option');
-        option.value = key;
-        option.text = value;
-        if(key == -1) {
-            option.selected = true;
-        }
+        option.value = optData.value;
+        option.text = optData.text;
+        option.dataset.count = optData.count;
         selectinput_tag.appendChild(option);
     }
 
     selectinput_library.addEventListener('change',async function() {
-            // 获取当前组容器
         let libraryId = this.options[this.selectedIndex].value;
-        Zotero.debug("[SKR]getTags: " + libraryId);
-        tags = await Zotero.skr.sqlconnector.getTags(libraryId);
-        selectinput_tag.innerHTML = ''; // 清空现有选项
-        tags[-1] = Zotero.skr.L10ns.getString('skr-user-tag-for-tags');
-        for (const [key, value] of Object.entries(tags)) {
-            const option = document.createElement('option')
-            option.value = key;
-            option.text = value;
-            if(key == -1) {
-                option.selected = true;
-            }
+        Zotero.debug("[SKR]getTagsWithCount: " + libraryId);
+        let tags = await Zotero.skr.sqlconnector.getTagsWithCount(libraryId);
+        selectinput_tag.innerHTML = ''; 
+
+        let tagOptions = tags.map(tag => ({ value: tag.id, text: `${tag.name} (${tag.count})`, count: tag.count }));
+        tagOptions = sortOptions(tagOptions);
+
+        const allTagOption = document.createElement('option');
+        allTagOption.value = -1;
+        allTagOption.text = Zotero.skr.L10ns.getString('skr-user-tag-for-tags');
+        allTagOption.selected = true;
+        selectinput_tag.appendChild(allTagOption);
+
+        for (let optData of tagOptions) {
+            const option = document.createElement('option');
+            option.value = optData.value;
+            option.text = optData.text;
+            option.dataset.count = optData.count;
             selectinput_tag.appendChild(option);
         }
     });
 
     const textinput = document.createElement('input');
-    textinput.classList.add('w-[60%]','border','border-gray-300','p-2','rounded-md','mr-2');
+    textinput.classList.add('w-[60%]','form-control','p-2','mr-2');
     textinput.setAttribute("type","text");
     textinput.setAttribute("data-l10n-id","skr-user-tag-by-description");
 
     const deletebutton = document.createElement('button');
-    deletebutton.classList.add('delete-btn','bg-red-500','text-white','py-1','px-2','rounded-md','hover:bg-red-600','transition-colors','duration-300');
+    deletebutton.classList.add('delete-btn','bg-rose-600','text-white','py-1.5','px-3','rounded','hover:bg-rose-700','transition-colors','duration-200','shadow-sm');
     deletebutton.textContent = '-';
     deletebutton.addEventListener('click', (button) => {
         button.target.parentElement.remove();
@@ -274,6 +338,30 @@ window.addEventListener("load", function() {
     Zotero.skr.sqlconnector.getTags(libraryId);
     switchPage();
     userInteraction();
+
+    const sortSelector = document.getElementById('global-tag-sort-selector');
+    if (sortSelector) {
+        sortSelector.addEventListener('change', (e) => {
+            window.skrTagSortMode = e.target.value;
+            const tagSelects = document.querySelectorAll('.tag-list');
+            tagSelects.forEach(select => {
+                let options = Array.from(select.options);
+                let allOption = options.find(o => o.value == -1);
+                let restOptions = options.filter(o => o.value != -1).map(o => ({
+                    value: o.value,
+                    text: o.text,
+                    count: parseInt(o.dataset.count || 0),
+                    element: o
+                }));
+                restOptions = sortOptions(restOptions);
+                select.innerHTML = '';
+                if (allOption) select.appendChild(allOption);
+                for (let opt of restOptions) {
+                    select.appendChild(opt.element);
+                }
+            });
+        });
+    }
 
     const submit_by_paper = document.getElementById('review-submit-by-tag');
     submit_by_paper.addEventListener("click", async () => {

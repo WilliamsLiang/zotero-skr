@@ -36,6 +36,36 @@ Zotero.skr.sqlconnector = Object.assign(Zotero.skr.sqlconnector, {
         };
         return library;
     },
+
+    async getCollectionsWithCount() {
+        let sql = `SELECT c.collectionID as id, c.collectionName as name, c.parentCollectionID as parentID, COUNT(ci.itemID) as count FROM collections c LEFT JOIN collectionItems ci ON c.collectionID = ci.collectionID GROUP BY c.collectionID`;
+        let result = await Zotero.DB.queryAsync(sql);
+        let collections = [];
+        for (let row of result) {
+            collections.push({ id: row.id, name: row.name, parentID: row.parentID, count: row.count });
+        }
+        return collections;
+    },
+
+    async getTagsWithCount(libraryId) {
+        if(libraryId == -1) {
+            let sql = `SELECT t.tagID as id, t.name as name, COUNT(it.itemID) as count FROM tags t LEFT JOIN itemTags it ON t.tagID = it.tagID GROUP BY t.tagID`;
+            let result = await Zotero.DB.queryAsync(sql);
+            let tags = [];
+            for (let row of result) {
+                tags.push({ id: row.id, name: row.name, count: row.count });
+            }
+            return tags;
+        } else {
+            let sql = `SELECT t.tagID as id, t.name as name, COUNT(it.itemID) as count FROM tags t INNER JOIN itemTags it ON t.tagID = it.tagID INNER JOIN collectionItems ci ON it.itemID = ci.itemID WHERE ci.collectionID = ${libraryId} GROUP BY t.tagID`;
+            let result = await Zotero.DB.queryAsync(sql);
+            let tags = [];
+            for (let row of result) {
+                tags.push({ id: row.id, name: row.name, count: row.count });
+            }
+            return tags;
+        }
+    },
     async getCollectionKey(collectionID) {
         let sql = `SELECT key FROM collections WHERE collectionID = ${collectionID}`;
         let result = await Zotero.DB.valueQueryAsync(sql);

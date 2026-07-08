@@ -32,7 +32,7 @@ const addPaperinfo = (storedData,div_id) => {
         const listContainer = document.getElementById(div_id);
 
         const listItem = document.createElement('div');
-        listItem.classList.add('bg-white', 'p-4', 'rounded-md', 'shadow-md');
+        listItem.classList.add('bg-white', 'p-5', 'border', 'border-slate-200', 'rounded-sm');
 
         const checkBlock = document.createElement('div');
         checkBlock.classList.add('flex', 'items-baseline', 'gap-2');
@@ -45,7 +45,7 @@ const addPaperinfo = (storedData,div_id) => {
 
         const checkLable = document.createElement('span');
         checkLable.textContent = storedData[key]["number"];
-        checkLable.classList.add('text-gray-500', 'text-sm');
+        checkLable.classList.add('text-slate-400', 'text-sm', 'font-mono');
 
         checkBlock.appendChild(checkbox);
         checkBlock.appendChild(checkLable);
@@ -57,10 +57,10 @@ const addPaperinfo = (storedData,div_id) => {
         
         const titleLabel = document.createElement('span');
         titleLabel.setAttribute("data-l10n-id","user-page-paper-title");
-        titleLabel.classList.add('text-gray-500', 'text-sm');
+        titleLabel.classList.add('text-slate-500', 'text-sm', 'whitespace-nowrap');
         
         const title = document.createElement('h2');
-        title.classList.add('text-lg', 'font-bold', 'mb-2');
+        title.classList.add('text-lg', 'font-bold', 'mb-2', 'font-display', 'text-slate-900', 'leading-snug');
         title.textContent = storedData[key]["title"];
 
         titleBlock.append(titleLabel, title);
@@ -72,14 +72,29 @@ const addPaperinfo = (storedData,div_id) => {
         
         const summaryLabel = document.createElement('span');
         summaryLabel.setAttribute("data-l10n-id","user-page-paper-abstract");
-        summaryLabel.classList.add('text-gray-500', 'text-sm');
+        summaryLabel.classList.add('text-slate-500', 'text-sm', 'whitespace-nowrap');
         
         const summary = document.createElement('p');
-        summary.classList.add('text-gray-600', 'truncate-text', 'flex-1');
+        summary.classList.add('text-slate-600', 'truncate-text', 'flex-1', 'leading-relaxed');
         summary.textContent = truncateText(storedData[key]["abstract"],150);
 
         summaryBlock.append(summaryLabel, summary);
         listItem.appendChild(summaryBlock);
+
+        // 参考文献区块
+        const bibBlock = document.createElement('div');
+        bibBlock.classList.add('flex', 'items-start', 'gap-3', 'mt-4', 'p-3', 'bg-slate-50', 'border', 'border-slate-100', 'rounded');
+        
+        const bibLabel = document.createElement('span');
+        bibLabel.textContent = "Ref:"; // Or use l10n
+        bibLabel.classList.add('text-slate-400', 'text-sm', 'font-bold', 'whitespace-nowrap', 'pt-0.5');
+        
+        const bibContent = document.createElement('p');
+        bibContent.className = `text-slate-700 text-sm flex-1 font-mono leading-relaxed skr-bib-${storedData[key]["key"]}`;
+        bibContent.innerHTML = "Loading...";
+        
+        bibBlock.append(bibLabel, bibContent);
+        listItem.appendChild(bibBlock);
 
         listContainer.appendChild(listItem);
     }
@@ -116,6 +131,56 @@ window.addEventListener("load", function() {
     }
     addPaperinfo(storedData,'list-container-review');
     addPaperinfo(storedData,'list-container-retrieval');
+
+    // 加载自定义参考文献格式
+    let json = Zotero.Prefs.get("extensions.zotero.skr.review.customBibStyles");
+    let customBibs = [];
+    if (json) {
+        try { customBibs = JSON.parse(json); } catch(e) {}
+    }
+    if (customBibs.length === 0) customBibs = [{ name: "英文", styleID: "http://www.zotero.org/styles/apa" }];
+    
+    const bibSelector = document.getElementById("global-bib-format-selector");
+    if (bibSelector) {
+        customBibs.forEach(item => {
+            let opt = document.createElement("option");
+            opt.value = item.styleID;
+            opt.textContent = item.name;
+            bibSelector.appendChild(opt);
+        });
+        
+        const updateBibliographies = async (styleID) => {
+            if (!dataIn || dataIn.length === 0) return;
+            Zotero.debug("[SKR] Updating bibliographies to style: " + styleID);
+            let format = { mode: 'bibliography', id: styleID };
+            for (const item of dataIn) {
+                let key = item.getField('key');
+                let bibText = "Error loading citation.";
+                try {
+                    let content = await Zotero.QuickCopy.getContentFromItems([item], format);
+                    if (content) {
+                        if (typeof content === "string") bibText = content;
+                        else if (content.html) bibText = content.html;
+                        else if (content.text) bibText = content.text;
+                    }
+                } catch(e) {
+                    Zotero.debug("[SKR] Error getting citation: " + e);
+                }
+                let els = document.querySelectorAll('.skr-bib-' + key);
+                els.forEach(el => {
+                    el.innerHTML = bibText;
+                });
+            }
+        };
+
+        bibSelector.addEventListener("change", (e) => {
+            updateBibliographies(e.target.value);
+        });
+
+        if (customBibs.length > 0) {
+            updateBibliographies(customBibs[0].styleID);
+        }
+    }
 
     let selectinput_tag = document.getElementById("databaseType");
     const selectinput_language = document.getElementById("language");

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <title data-l10n-id="smart-knowledge-review-copy-bibliography"></title>
+    <link href="../css/cloudflare.min.css" rel="stylesheet">
+    <link rel="localization" href="smart-knowledge-review.ftl" />
+    <script src="chrome://zotero/content/include.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; background-color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; }
+        .container { background-color: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        textarea { flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 12px; resize: none; font-size: 14px; line-height: 1.5; color: #374151; margin-bottom: 16px; }
+        textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .btn-row { display: flex; justify-content: flex-end; gap: 12px; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.2s; }
+        .btn-copy { background-color: #3b82f6; color: white; }
+        .btn-copy:hover { background-color: #2563eb; }
+        .btn-close { background-color: #e5e7eb; color: #374151; }
+        .btn-close:hover { background-color: #d1d5db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="btn-row" style="align-items: center; margin-bottom: 16px;">
+            <div class="custom-select-wrapper" style="position: relative; width: 200px; margin-right: auto; user-select: none;">
+                <div id="custom-select-trigger" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #374151; font-size: 14px;">
+                    <span id="custom-select-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 10px;">Select Format...</span>
+                    <span style="font-size: 12px;">▼</span>
+                </div>
+                <ul id="custom-select-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #d1d5db; border-radius: 6px; margin: 4px 0 0 0; padding: 0; list-style: none; max-height: 250px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 9999;">
+                </ul>
+            </div>
+            <button class="btn btn-close" onclick="window.close()">Close</button>
+            <button class="btn btn-copy" id="copyBtn">Copy Text</button>
+        </div>
+        <textarea id="bibContent" readonly style="margin-bottom: 0;"></textarea>
+    </div>
+    <script src="copy-bib.js"></script>
+</body>
+</html>

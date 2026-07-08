@@ -13,6 +13,13 @@ prefs-apiurl-final-url = 大模型请求的地址：
 prefs-button-check = 检测
 prefs-button-reset = 重置
 
+prefs-tab-api = API 配置
+prefs-bib-custom-title = 参考文献自定义配置
+prefs-bib-custom-name = 自定义名称:
+prefs-bib-custom-format = 选择引用格式:
+prefs-bib-custom-add = 添加格式
+prefs-bib-custom-delete = 删除
+
 smart-knowledge-review-right-key = 生成相关综述
 smart-knowledge-review-menu-name = 综述生成工具
 
@@ -58,6 +65,7 @@ skr-erro-tag-all-selected = 拒绝选择所有文献！
 
 skr-example-display-right-key = SKR 辅助阅读分析
 smart-knowledge-example-dislay-right-key = SKR 辅助阅读分析
+smart-knowledge-review-copy-bibliography = SKR 复制参考文献
 
 skr-api-write-info = 请填写完整配置
 skr-api-loading-info = 正在连接...

@@ -13,6 +13,13 @@ prefs-apiurl-final-url = Full LLM Request URL:
 prefs-button-check = Check
 prefs-button-reset = Reset
 
+prefs-tab-api = API Settings
+prefs-bib-custom-title = Custom Bibliography Configurations
+prefs-bib-custom-name = Custom Name:
+prefs-bib-custom-format = Citation Style:
+prefs-bib-custom-add = Add Style
+prefs-bib-custom-delete = Delete
+
 smart-knowledge-review-right-key = Generate Relevant Review
 smart-knowledge-review-menu-name = Review Generation Tool
 
@@ -56,8 +63,9 @@ skr-erro-api-info = API Request Failed
 skr-excute-api-info = Requesting, please wait...
 skr-erro-tag-all-selected = Selecting all papers is not allowed!
 
-skr-example-display-right-key = SKR Reading Support Analysis
-smart-knowledge-example-dislay-right-key = SKR Reading Support Analysis
+skr-example-display-right-key = SKR Auxiliary Reading Analysis
+smart-knowledge-example-dislay-right-key = SKR Auxiliary Reading Analysis
+smart-knowledge-review-copy-bibliography = SKR Copy Bibliography
 
 skr-api-write-info = Please fill in the complete configuration
 skr-api-loading-info = Connecting...

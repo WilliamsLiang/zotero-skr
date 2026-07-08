@@ -52,6 +52,30 @@ Zotero.skr.SmartKnowledgeReview = {
 		doc.getElementById('zotero-itemmenu').appendChild(skr_menu_review_example);
 		this.storeAddedElement(skr_menu_review_example);
 		
+		if (!doc.skrPopupShowingListenerAdded) {
+			doc.getElementById('zotero-itemmenu').addEventListener('popupshowing', () => {
+				const items = Zotero.getActiveZoteroPane().getSelectedItems();
+				let elem = doc.getElementById('smart-knowledge-example-dislay');
+				if (elem) {
+					// Hide if not exactly 1 regular item
+					elem.hidden = items.length !== 1 || !items[0].isRegularItem();
+				}
+			});
+			doc.skrPopupShowingListenerAdded = true;
+		}
+		
+		// 复制参考文献
+		let skr_menu_copy_bib = doc.createXULElement('menuitem');
+		skr_menu_copy_bib.id = 'smart-knowledge-review-copy-bib';
+		skr_menu_copy_bib.setAttribute('label', Zotero.skr.L10ns.getString('smart-knowledge-review-copy-bibliography'));
+		skr_menu_copy_bib.addEventListener('command', () => {
+			const items = Zotero.getActiveZoteroPane().getSelectedItems();
+			if (!items || items.length === 0) return;
+			Zotero.skr.UserPage.openCopyBib(items);
+		});
+		doc.getElementById('zotero-itemmenu').appendChild(skr_menu_copy_bib);
+		this.storeAddedElement(skr_menu_copy_bib);
+		
 		// 增加到顶部菜单的范例
 		let skr_menuitem = doc.createXULElement('menuitem');
 		skr_menuitem.id = 'smart-knowledge-review-menu';
@@ -93,6 +117,7 @@ Zotero.skr.SmartKnowledgeReview = {
 		let ids = [
 			'smart-knowledge-review-right-key',
 			'smart-knowledge-example-dislay',
+			'smart-knowledge-review-copy-bib',
 			'smart-knowledge-review-menu'
 		];
 		for (let id of ids) {

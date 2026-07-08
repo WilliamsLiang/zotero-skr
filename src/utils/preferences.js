@@ -74,11 +74,110 @@ window.SKR_Preferences = {
         const url_input = document.getElementById("llm-api-url-input");
         const provider_input = document.getElementById("llm-api-provider-input");
         const text_label = document.getElementById("final-url");
+
+        // Populate Bibliography Styles
+        const stylePopup = document.getElementById("skr-bib-style-popup");
+        let stylesMap = {};
+        if (stylePopup && Zotero.Styles) {
+            let styles = Zotero.Styles.getVisible();
+            for (let style of styles) {
+                stylesMap[style.styleID] = style.title;
+                let item = document.createXULElement("menuitem");
+                item.setAttribute("value", style.styleID);
+                item.setAttribute("label", style.title);
+                stylePopup.appendChild(item);
+            }
+            
+            // Fix: ensure the menulist selects the first item initially if it's empty
+            let styleMenuList = document.getElementById("skr-bib-new-style");
+            if (styleMenuList && styles.length > 0) {
+                // wait for population to reflect
+                setTimeout(() => { styleMenuList.selectedIndex = 0; }, 100);
+            }
+        }
         
-        const updateFinalUrl = () => {
-            const url_val = document.getElementById("llm-api-url-input").value;
+        // Custom Bibliography Management
+        const listContainer = document.getElementById("skr-bib-custom-list");
+        const getCustomBibs = () => {
+            let json = Zotero.Prefs.get("extensions.zotero.skr.review.customBibStyles");
+            if (json) {
+                try { 
+                    let arr = JSON.parse(json); 
+                    if (arr && arr.length > 0) return arr;
+                } catch(e) {}
+            }
+            let defaultName = Zotero.locale.startsWith('zh') ? "英文" : "APA";
+            return [{ name: defaultName, styleID: "http://www.zotero.org/styles/apa" }];
+        };
+        const setCustomBibs = (arr) => {
+            Zotero.Prefs.set("extensions.zotero.skr.review.customBibStyles", JSON.stringify(arr));
+        };
+        const renderCustomBibs = () => {
+            if (!listContainer) return;
+            // Clear existing children
+            while (listContainer.firstChild) {
+                listContainer.removeChild(listContainer.firstChild);
+            }
+            
+            let arr = getCustomBibs();
+            arr.forEach((item, index) => {
+                let hbox = document.createXULElement("hbox");
+                hbox.setAttribute("style", "display: flex; align-items: center; gap: 10px; margin-bottom: 5px;");
+                
+                let nameLabel = document.createXULElement("label");
+                nameLabel.setAttribute("value", item.name);
+                nameLabel.setAttribute("style", "font-weight: bold; width: 100px;");
+                
+                let styleLabel = document.createXULElement("label");
+                styleLabel.setAttribute("value", stylesMap[item.styleID] || item.styleID);
+                styleLabel.setAttribute("style", "flex: 1; opacity: 0.8; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;");
+                styleLabel.setAttribute("crop", "end");
+                
+                let delBtn = document.createXULElement("button");
+                delBtn.setAttribute("label", "X");
+                delBtn.setAttribute("style", "color: red; min-width: 30px; flex-shrink: 0;");
+                delBtn.addEventListener("click", () => {
+                    arr.splice(index, 1);
+                    setCustomBibs(arr);
+                    renderCustomBibs();
+                });
+                
+                hbox.appendChild(nameLabel);
+                hbox.appendChild(styleLabel);
+                hbox.appendChild(delBtn);
+                listContainer.appendChild(hbox);
+            });
+        };
+        
+        renderCustomBibs();
+        
+        const addBtn = document.getElementById("skr-bib-add-btn");
+        if (addBtn) {
+            addBtn.addEventListener("click", () => {
+                let nameInput = document.getElementById("skr-bib-new-name").value.trim();
+                let styleInput = document.getElementById("skr-bib-new-style").value;
+                if (!nameInput || !styleInput) return;
+                
+                let arr = getCustomBibs();
+                arr.push({ name: nameInput, styleID: styleInput });
+                setCustomBibs(arr);
+                renderCustomBibs();
+                
+                document.getElementById("skr-bib-new-name").value = "";
+            });
+        }
+
+        
+        const updateFinalUrl = (forceUrl, forceProvider) => {
+            let url_val = document.getElementById("llm-api-url-input").value;
+            if (typeof forceUrl === 'string') url_val = forceUrl;
+            
             const url = url_val ? url_val.trim() : "";
-            const provider = document.getElementById("llm-api-provider-input").value || "openai";
+            
+            let provider = document.getElementById("llm-api-provider-input").value;
+            if (typeof forceProvider === 'string') provider = forceProvider;
+            if (!provider) provider = "openai";
+
             if (provider === "gemini") {
                 const model = Zotero.Prefs.get("extensions.zotero.skr.review.model") || "gemini-1.5-pro";
                 text_label.textContent = url ? `${url}/v1beta/models/${model}:streamGenerateContent?alt=sse` : "";
@@ -92,9 +191,12 @@ window.SKR_Preferences = {
         const url = Zotero.Prefs.get("extensions.zotero.skr.review.apiurl");
         const provider = Zotero.Prefs.get("extensions.zotero.skr.review.apiprovider") || "openai";
         if (provider_input) provider_input.value = provider;
-        updateFinalUrl();
+        
+        // Pass the explicit preferences on init because XUL preference bindings 
+        // might not have populated the DOM values synchronously yet.
+        updateFinalUrl(url, provider);
 
-        url_input.addEventListener("input", updateFinalUrl);
+        url_input.addEventListener("input", () => updateFinalUrl());
         if (provider_input) {
             provider_input.addEventListener("command", (event) => {
                 let selectedVal = event.target.value || provider_input.value;

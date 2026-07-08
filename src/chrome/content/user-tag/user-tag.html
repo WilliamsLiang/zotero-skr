@@ -14,26 +14,85 @@
 	<script src="user-tag-data.js"></script>
     <style>
         /* 自定义样式 */
-        .tab-btn.active {
-            background-color: #3b82f6;
-            color: white;
+        .font-display { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+        .tab-bar {
+            border-bottom: 1px solid #E2E8F0;
+            margin-bottom: 24px;
+            background: transparent;
+            box-shadow: none;
         }
+        .tab-btn {
+            font-weight: 500;
+            color: #64748B;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            background: transparent;
+        }
+        .tab-btn:hover {
+            color: #0F172A;
+            background: transparent;
+        }
+        .tab-btn.active {
+            color: #312E81;
+            border-bottom: 2px solid #312E81;
+            background: transparent;
+        }
+
         .page {
             display: none;
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            box-shadow: none;
         }
         .page.active {
             display: block;
         }
-		/* 结果面板样式 */
-        #review-by-paper-result {
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            font-size: 16px;
-            line-height: 1.6;
-            color: #333;
+
+        .btn-primary {
+            background-color: #312E81;
+            color: #FFFFFF;
+            transition: all 0.2s ease;
         }
+        .btn-primary:hover {
+            background-color: #1E1B4B;
+            transform: translateY(-1px);
+        }
+
+        .form-control {
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #312E81;
+            box-shadow: 0 0 0 3px rgba(49, 46, 129, 0.1);
+        }
+
+        /* Manuscript Result Panel */
+        .result-panel {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-left: 3px solid #312E81;
+            border-radius: 2px;
+            padding: 32px 40px;
+        }
+        .result-panel h1, .result-panel h2, .result-panel h3 {
+            font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+            color: #0F172A;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        .result-panel p {
+            line-height: 1.7;
+            color: #334155;
+            margin-bottom: 1.2em;
+        }
+        
         .w-20 {
             width: 20%!important;
         }
@@ -49,84 +108,69 @@
             white-space: pre-wrap;  /* 允许换行 */
             word-break: break-word; /* 处理长单词或术语 */
             overflow-x: auto;
-            background-color: #f5f5f5;
-            padding: 1em;
-            border-radius: 6px;
+            background-color: #F8FAFC;
+            padding: 1.5em;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
             max-width: 100%;
             box-sizing: border-box;
         }
 
         .result-container code {
-            font-family: Consolas, monospace;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 0.9em;
             line-height: 1.5;
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <nav class="tab-bar flex bg-white shadow-md mb-4">
-        <button class="tab-btn active py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="review_by_tag" data-l10n-id="skr-user-tag-by-selected"></button>
-        <!-- <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="retrieval_by_tag" data-l10n-id="skr-user-tag-by-retrieval"></button> -->
-        <!-- <button class="tab-btn py-2 px-4 flex-1 hover:bg-gray-200 transition-colors duration-300" data-page="settings">设置</button> -->
+<body class="bg-[#F8FAFC] text-slate-900 font-sans antialiased">
+    <nav class="tab-bar flex px-4">
+        <button class="tab-btn active py-3 px-6 transition-colors duration-300" data-page="review_by_tag" data-l10n-id="skr-user-tag-by-selected"></button>
     </nav>
-    <div class="page-container container mx-auto px-4">
+    <div class="container mx-auto px-4 mb-4 flex items-center justify-end gap-2">
+        <label for="global-tag-sort-selector" class="text-sm font-medium text-slate-600">排序方式:</label>
+        <select id="global-tag-sort-selector" class="form-control p-2 text-sm min-w-[150px] cursor-pointer">
+            <option value="count">按数量 (多到少)</option>
+            <option value="alpha">按字母 (A-Z)</option>
+        </select>
+    </div>
+    <div class="page-container container mx-auto px-4 pb-8">
         <!-- 根据标签生成页面 -->
-        <div id="review_by_tag" class="page active bg-white p-4 rounded-md shadow-md mb-4">
-			<h2 class="text-lg font-bold mb-2">标签组合</h2>
-			<button id="tag-add" class="add-btn bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors duration-300" data-l10n-id="skr-user-tag-by-added"></button>
-			<div id="tag-combination-review" class="mt-4 border border-gray-300 p-4 rounded-md">
-				<!-- <div class="tag-combination-item mb-2 flex items-center">
-                    <select class="flex-1 border border-gray-300 p-2 rounded-md mr-2">
-                        <option value="option1">选项1</option>
-                        <option value="option2">选项2</option>
-                        <option value="option3">选项3</option>
-                    </select>
-                    <select class="flex-1 border border-gray-300 p-2 rounded-md mr-2">
-                        <option value="option1">选项1</option>
-                        <option value="option2">选项2</option>
-                        <option value="option3">选项3</option>
-                    </select>
-					<input type="text" class="flex-1 border border-gray-300 p-2 rounded-md mr-2" data-l10n-id="skr-user-tag-by-description">
-					<button class="delete-btn bg-red-500 text-white py-1 px-2 rounded-md hover:bg-red-600 transition-colors duration-300">-</button>
-				</div> -->
+        <div id="review_by_tag" class="page active p-6 mb-4">
+			<h2 class="text-2xl font-bold mb-4 font-display text-slate-900 border-b border-slate-200 pb-2">标签组合</h2>
+			<button id="tag-add" class="btn-primary py-2 px-6 rounded-md shadow-sm mb-4" data-l10n-id="skr-user-tag-by-added"></button>
+			<div id="tag-combination-review" class="mt-2 border border-slate-200 bg-slate-50 p-6 rounded-sm mb-8">
+				<!-- Tag comb content -->
 			</div>
-			<h2 class="text-xl font-bold text-gray-800 mb-4 mt-4" data-l10n-id="skr-general-review-demand"></h2>
+			<h2 class="text-xl font-bold text-slate-900 mb-4 font-display" data-l10n-id="skr-general-review-demand"></h2>
             <!-- 文本输入区 -->
-            <textarea id="review-by-tag-result-demand" class="w-full border border-gray-300 p-3 rounded-md resize-none mb-4 min-h-[120px]" data-l10n-id="skr-user-paper-by-description"></textarea>
+            <textarea id="review-by-tag-result-demand" class="w-full form-control p-4 resize-y mb-6 min-h-[120px] text-slate-800 leading-relaxed" data-l10n-id="skr-user-paper-by-description"></textarea>
             <!-- 语言选择、下拉框、提交按钮同一行 -->
-            <div class="flex items-center space-x-4 mb-4">
+            <div class="flex items-center space-x-4 mb-8">
                 <!-- 标签 -->
-                <label for="review-tag-language" class="text-sm text-gray-700 whitespace-nowrap"  data-l10n-id="skr-general-language-setting"></label>
+                <label for="review-tag-language" class="text-sm text-slate-600 whitespace-nowrap"  data-l10n-id="skr-general-language-setting"></label>
                 <!-- 下拉选择 -->
-                <select id="review-tag-language" class="border border-gray-300 p-2 rounded-md bg-white text-gray-800">
+                <select id="review-tag-language" class="form-control p-2">
                     <option value="en-US">English</option>
                     <option value="zh-CN">中文</option>
                 </select>
                 <!-- 提交按钮 -->
-                <button id="review-submit-by-tag" class="ml-auto bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300"data-l10n-id="skr-user-paper-by-submit"></button>
+                <button id="review-submit-by-tag" class="ml-auto btn-primary py-2 px-6 rounded-md shadow-sm" data-l10n-id="skr-user-paper-by-submit"></button>
             </div>
-			<div id="review-by-tag-review-result" class="result-panel result-container border border-gray-300 p-2 rounded-md min-h-[100px]"></div>
+			<div id="review-by-tag-review-result" class="result-panel result-container min-h-[100px]"></div>
         </div>
         <!-- 已选中文献页面 -->
-        <div id="retrieval_by_tag" class="page bg-white p-4 rounded-md shadow-md mb-4">
-			<h2 class="text-lg font-bold mb-2">标签组合</h2>
-			<button id="tag-add-retrieval" class="add-btn bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors duration-300" data-l10n-id="skr-user-tag-by-added"></button>
-			<div id="tag-combination-retrieval" class="mt-4 border border-gray-300 p-4 rounded-md">
-				<!-- <div class="tag-combination-item mb-2 flex items-center">
-					<input type="text" class="flex-1 border border-gray-300 p-2 rounded-md mr-2" >
-					<input type="text" class="flex-1 border border-gray-300 p-2 rounded-md mr-2" >
-					<button class="delete-btn bg-red-500 text-white py-1 px-2 rounded-md hover:bg-red-600 transition-colors duration-300">-</button>
-				</div> -->
+        <div id="retrieval_by_tag" class="page p-6 mb-4">
+			<h2 class="text-2xl font-bold mb-4 font-display text-slate-900 border-b border-slate-200 pb-2">标签组合</h2>
+			<button id="tag-add-retrieval" class="btn-primary py-2 px-6 rounded-md shadow-sm mb-4" data-l10n-id="skr-user-tag-by-added"></button>
+			<div id="tag-combination-retrieval" class="mt-2 border border-slate-200 bg-slate-50 p-6 rounded-sm mb-8">
+				<!-- Tag comb content -->
 			</div>
-			<!-- <div class="input-area flex mb-4 mt-4">
-                <textarea id="review-by-tag-retrieval-demand" class="flex-1 border border-gray-300 p-2 rounded-md mr-2 resize-none" data-l10n-id="skr-user-paper-by-description"></textarea>
-                <button id="review-by-tag-retrieval-submit" class="submit-btn bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-300" data-l10n-id="skr-user-tag-by-submit"></button>
-            </div> -->
             <!-- 文献检索条件 -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="relative z-50">
-                    <label for="databaseType" class="block text-sm font-medium text-gray-700 mb-2">文献数据库类型</label>
-                    <select id="databaseType" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 bg-white relative z-50">
+                    <label for="databaseType" class="block text-sm font-medium text-slate-600 mb-2">文献数据库类型</label>
+                    <select id="databaseType" class="w-full form-control p-3 relative z-50">
                         <option value="Web of Science">Web of Science</option>
                         <option value="CNKI">CNKI</option>
                         <option value="Springer">Springer</option>
@@ -138,26 +182,26 @@
                     </select>
                 </div>
                 <div class="relative z-50">
-                    <label for="language" class="block text-sm font-medium text-gray-700 mb-2">生成语言</label>
-                    <select id="language" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 bg-white relative z-50">
+                    <label for="language" class="block text-sm font-medium text-slate-600 mb-2">生成语言</label>
+                    <select id="language" class="w-full form-control p-3 relative z-50">
                         <option value="英文">英文</option>
                         <option value="中文">中文</option>
                     </select>
                 </div>
             </div>
             <!-- 生成要求 -->
-            <div class="mb-6">
-                <label for="demand-retrieval-by-tag" class="block text-sm font-medium text-gray-700 mb-2">检索要求</label>
+            <div class="mb-8">
+                <label for="demand-retrieval-by-tag" class="block text-sm font-medium text-slate-600 mb-2">检索要求</label>
                 <div class="relative">
-                    <textarea id="demand-retrieval-by-tag" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 resize-none" rows="4" data-l10n-id="skr-user-paper-by-description" ></textarea>
+                    <textarea id="demand-retrieval-by-tag" class="w-full form-control p-4 resize-y text-slate-800 leading-relaxed" rows="4" data-l10n-id="skr-user-paper-by-description" ></textarea>
                 </div>
             </div>
             <!-- 提交按钮 -->
-            <div class="flex justify-center mb-6">
-                <button id="retrieval-by-tag" class="submit-btn bg-blue-500 hover:bg-blue-500/90 text-white font-medium py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl"  data-l10n-id="skr-user-paper-by-submit"></button>
+            <div class="flex justify-center mb-8">
+                <button id="retrieval-by-tag" class="btn-primary py-3 px-10 rounded-md shadow-sm text-base"  data-l10n-id="skr-user-paper-by-submit"></button>
             </div>
             <!-- 结果面板 -->
-            <div id="result-retrieval-by-tag" class="result-panel border border-gray-200 rounded-lg p-4 bg-gray-50 min-h-[200px]">
+            <div id="result-retrieval-by-tag" class="result-panel result-container min-h-[200px]">
             </div>
         </div>
     </div>

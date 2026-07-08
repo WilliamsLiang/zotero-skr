@@ -3,9 +3,9 @@
     "SKR@zotero.org": {
       "updates": [
         {
-          "version": "1.1.7",
-          "update_link": "https://github.com/WilliamsLiang/zotero-skr/releases/latest/download/skr-win-zotero7-1.1.7.xpi",
-          "update_hash": "sha256:06838acd3d4c65561fc01afff881205b2a14e1485430b3d111d12cdd6e78bd3a",
+          "version": "1.2.0",
+          "update_link": "https://github.com/WilliamsLiang/zotero-skr/releases/latest/download/skr-zotero7-9-1.2.0.xpi",
+          "update_hash": "sha256:3c7c467b696718b036c6cea4cd4c8d05ea2a5db10a3879931b58a532f08ca7c0",
           "applications": {
             "zotero": {
               "strict_min_version": "6.999",

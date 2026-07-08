@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://www.zotero.org">
-    <img src="https://img.shields.io/badge/Zotero-7-red" alt="Zotero-7">
+    <img src="https://img.shields.io/badge/Zotero-7%20|%208%20|%209-red" alt="Zotero-7/8/9">
   </a>
   <a href="https://github.com/WilliamsLiang/zotero-skr/stargazers">
     <img src="https://img.shields.io/github/stars/WilliamsLiang/zotero-skr?label=Stars" alt="element-ui">
@@ -75,13 +75,14 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/src/chrome/content/images/wechat-alipay.png" style="zoom:70%;float:left" /> -->
 
-## Recent Updates (v1.1.7)
+## Recent Updates (v1.2.0)
 
-- **Multi-Model Support**: Added native compatibility for OpenAI, Google Gemini, and Anthropic (Claude) APIs.
-- **Robust SSE Parsing**: Completely refactored the underlying SSE (Server-Sent Events) streaming parser to safely handle packet fragmentation and empty data structures, resolving JSON parse errors.
-- **Improved Settings UI**: Enhanced Zotero 7 preferences panel compatibility with native XUL elements for smooth API provider switching and dynamic URL completion.
-- **Clean Uninstall & Reload**: Redesigned the DOM injection cleanup logic to aggressively prevent duplicate context menus and ghost elements when reloading or upgrading the plugin.
-- **MaaS Platform Compatibility**: Added built-in support for Aliyun DashScope's modified Anthropic API (e.g. `qwen3.7-plus`) by properly structuring `thinking: disabled` fields.
+- **Universal Cross-Platform**: Officially supported Zotero 7, 8, and 9 with a single unified `.xpi` package for both Windows and macOS.
+- **Modern UI Redesign**: Completely overhauled the `user-paper` and `user-tag` pages with the new minimalist "Serif-Academic" design system.
+- **Collection Tree Hierarchy**: Reconstructed Zotero's native left-pane collection tree with intelligent hierarchical numbering (e.g. `1.1.2`), explicitly decoupling it from the tag sorting modes.
+- **Smart Bibliography System**: Added global format switching and intelligent locale-aware default bibliography names.
+- **Markdown Rendering**: Introduced a native markdown engine to dynamically format note content during generation.
+- **Preferences Initialization Fix**: Fixed a bug where the final LLM API URL would not display instantly upon opening the settings window.
 
 ## Future Work
 
