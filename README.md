@@ -81,7 +81,7 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 - **Modern UI Redesign**: Completely overhauled the `user-paper` and `user-tag` pages with the new minimalist "Serif-Academic" design system.
 - **Collection Tree Hierarchy**: Reconstructed Zotero's native left-pane collection tree with intelligent hierarchical numbering (e.g. `1.1.2`), explicitly decoupling it from the tag sorting modes.
 - **Smart Bibliography System**: Added global format switching and intelligent locale-aware default bibliography names.
-- **Markdown Rendering**: Introduced a native markdown engine to dynamically format note content during generation.
+- **Markdown Rendering & Auto-Save**: Introduced a native markdown engine to dynamically format note content during generation. SKR Reading Support Analysis now automatically saves these beautifully formatted results directly to Zotero child notes.
 - **Preferences Initialization Fix**: Fixed a bug where the final LLM API URL would not display instantly upon opening the settings window.
 
 ## Future Work
