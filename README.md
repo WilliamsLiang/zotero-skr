@@ -25,7 +25,7 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 
 ## Getting started
 
-* Step 1, download the latest version zotcard: [Download](https://github.com/WilliamsLiang/zotero-skr/releases);
+* Step 1, download the latest version of Zotero-SKR: [Download](https://github.com/WilliamsLiang/zotero-skr/releases);
 * Step 2: Zotero - Tools - Add-ons - ⚙️ - Install Add-on From File... , select the plug-in xpi file;
 * Step 3: Set your own deployed large model address or platform API (e.g., OpenAI)
 
@@ -75,14 +75,16 @@ Zotero-skr is a plugin for Zotero, serving as an auxiliary tool for literature r
 
 <img src="https://raw.githubusercontent.com/018/zotcard/main/src/chrome/content/images/wechat-alipay.png" style="zoom:70%;float:left" /> -->
 
-## Recent Updates (v1.2.0)
+## Recent Updates (v1.2.1)
 
-- **Universal Cross-Platform**: Officially supported Zotero 7, 8, and 9 with a single unified `.xpi` package for both Windows and macOS.
-- **Modern UI Redesign**: Completely overhauled the `user-paper` and `user-tag` pages with the new minimalist "Serif-Academic" design system.
-- **Collection Tree Hierarchy**: Reconstructed Zotero's native left-pane collection tree with intelligent hierarchical numbering (e.g. `1.1.2`), explicitly decoupling it from the tag sorting modes.
-- **Smart Bibliography System**: Added global format switching and intelligent locale-aware default bibliography names.
-- **Markdown Rendering & Auto-Save**: Introduced a native markdown engine to dynamically format note content during generation. SKR Reading Support Analysis now automatically saves these beautifully formatted results directly to Zotero child notes.
-- **Preferences Initialization Fix**: Fixed a bug where the final LLM API URL would not display instantly upon opening the settings window.
+- **Markdown & SKR Reading Support Optimization**: Improved Markdown rendering and the SKR Reading Support Analysis workflow for cleaner, better structured Zotero notes.
+- **Single-Paper PDF Full-Text Support**: Single-document analysis can include extracted PDF full text, controlled by the "Use Full Text for Analysis" preference. Multi-document analysis continues to use abstracts by default.
+- **SKR Reading Support Auto-Save**: Analysis results are automatically saved to Zotero notes only after successful API responses. Failed API requests no longer create error-content notes.
+- **Visible Save Location**: The example-display page now shows the Zotero save path, such as `My Library -> SKR Notes`, with red warning styling when the note was not saved.
+- **Configurable Multi-Document Note Collection**: Added a preference for the collection name used by multi-document SKR analysis notes. Leaving it blank uses the localized default.
+- **APA 7 Default Bibliography**: The default bibliography style now prefers APA 7th edition when available, and falls back to the first installed Zotero style otherwise.
+- **Copy Bibliography Window**: Added a bibliography copy dialog with localized UI text and custom bibliography style support.
+- **Release Polish**: Improved English/Chinese localization keys and fixed several pre-release UI and debug-output issues.
 
 ## Future Work
 

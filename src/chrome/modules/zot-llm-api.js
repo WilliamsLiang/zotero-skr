@@ -193,7 +193,6 @@ Zotero.skr.requestLLM = Object.assign(Zotero.skr.requestLLM, {
                             const jsonStr = line.replace('data:', '').trim();
                             if (jsonStr === '[DONE]') return;
                             
-                            Zotero.debug("[SKR] SSE Stream JSON: " + jsonStr);
                             try {
                                 const dataObj = JSON.parse(jsonStr);
                                 let content = '';

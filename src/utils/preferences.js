@@ -40,7 +40,7 @@ var LLMConnectionTester = {
             while(!tmp_status.finished){
                 if(tmp_status.msg.length > 0){
                     if(tmp_status.code != 200){
-                        this.updateStatus(`❌ ` + Zotero.skr.L10ns.getString('skr-api-erro-info')+` ${tmp_status.code} : ` + `${tmp_status.msg}`, '#f56c6c');
+                        this.updateStatus(`❌ ` + Zotero.skr.L10ns.getString('skr-api-error-info')+` ${tmp_status.code} : ` + `${tmp_status.msg}`, '#f56c6c');
                         break;
                     }else{
                         this.updateStatus('✅ ' + Zotero.skr.L10ns.getString('skr-api-connect-info'), '#67c23a');
@@ -52,7 +52,7 @@ var LLMConnectionTester = {
             Zotero.debug("[SKR]大模型请求状态: " + JSON.stringify(tmp_status));
             if(tmp_status.msg.length > 0){
                 if(tmp_status.code != 200){
-                    this.updateStatus(`❌ ` + Zotero.skr.L10ns.getString('skr-api-erro-info')+` ${tmp_status.code} : ` + `${tmp_status.msg}`, '#f56c6c');
+                    this.updateStatus(`❌ ` + Zotero.skr.L10ns.getString('skr-api-error-info')+` ${tmp_status.code} : ` + `${tmp_status.msg}`, '#f56c6c');
                 }else{
                     this.updateStatus('✅ ' + Zotero.skr.L10ns.getString('skr-api-connect-info'), '#67c23a');
                 }
@@ -80,19 +80,54 @@ window.SKR_Preferences = {
         let stylesMap = {};
         if (stylePopup && Zotero.Styles) {
             let styles = Zotero.Styles.getVisible();
+            let defaultBibPopup = document.getElementById("skr-analysis-default-bib-popup");
+            let defaultBibList = document.getElementById("skr-analysis-default-bib");
+            if (defaultBibPopup) {
+                while (defaultBibPopup.firstChild) {
+                    defaultBibPopup.removeChild(defaultBibPopup.firstChild);
+                }
+            }
+            
             for (let style of styles) {
                 stylesMap[style.styleID] = style.title;
                 let item = document.createXULElement("menuitem");
                 item.setAttribute("value", style.styleID);
                 item.setAttribute("label", style.title);
                 stylePopup.appendChild(item);
+                
+                if (defaultBibPopup) {
+                    let defaultItem = document.createXULElement("menuitem");
+                    defaultItem.setAttribute("value", style.styleID);
+                    defaultItem.setAttribute("label", style.title);
+                    defaultBibPopup.appendChild(defaultItem);
+                }
             }
-            
             // Fix: ensure the menulist selects the first item initially if it's empty
             let styleMenuList = document.getElementById("skr-bib-new-style");
             if (styleMenuList && styles.length > 0) {
                 // wait for population to reflect
                 setTimeout(() => { styleMenuList.selectedIndex = 0; }, 100);
+            }
+            if (defaultBibList && defaultBibPopup && defaultBibPopup.childNodes.length > 0) {
+                let savedStyle = Zotero.Prefs.get("extensions.zotero.skr.review.defaultBibStyle");
+                let apaStyle = "http://www.zotero.org/styles/apa";
+                let targetIndex = 0;
+                let foundSavedStyle = false;
+                for (let i = 0; i < defaultBibPopup.childNodes.length; i++) {
+                    let styleID = defaultBibPopup.childNodes[i].getAttribute("value");
+                    if (savedStyle && styleID === savedStyle) {
+                        targetIndex = i;
+                        foundSavedStyle = true;
+                        break;
+                    }
+                    if (styleID === apaStyle) {
+                        targetIndex = i;
+                    }
+                }
+                setTimeout(() => { defaultBibList.selectedIndex = targetIndex; }, 100);
+                if (!savedStyle || !foundSavedStyle) {
+                    Zotero.Prefs.set("extensions.zotero.skr.review.defaultBibStyle", defaultBibPopup.childNodes[targetIndex].getAttribute("value"));
+                }
             }
         }
         
@@ -146,10 +181,21 @@ window.SKR_Preferences = {
                 hbox.appendChild(styleLabel);
                 hbox.appendChild(delBtn);
                 listContainer.appendChild(hbox);
+                
             });
+            
         };
         
         renderCustomBibs();
+
+        const defaultBibList = document.getElementById("skr-analysis-default-bib");
+        if (defaultBibList) {
+            defaultBibList.addEventListener("command", () => {
+                if (defaultBibList.value) {
+                    Zotero.Prefs.set("extensions.zotero.skr.review.defaultBibStyle", defaultBibList.value);
+                }
+            });
+        }
         
         const addBtn = document.getElementById("skr-bib-add-btn");
         if (addBtn) {
@@ -167,7 +213,80 @@ window.SKR_Preferences = {
             });
         }
 
-        
+        const updateExportDirLabel = () => {
+            let label = document.getElementById("skr-analysis-export-dir-label");
+            if (label) {
+                let dir = Zotero.Prefs.get("extensions.zotero.skr.review.exportDir");
+                if (!dir) {
+                    try {
+                        let dirService = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties);
+                        let homeDir = dirService.get("Home", Components.interfaces.nsIFile);
+                        homeDir.append(".zotero-skr");
+                        dir = homeDir.path + " (" + Zotero.skr.L10ns.getString('prefs-skr-analysis-export-placeholder') + ")";
+                    } catch(e) {
+                        dir = Zotero.skr.L10ns.getString('prefs-skr-analysis-export-placeholder');
+                    }
+                }
+                label.setAttribute("value", dir);
+            }
+        };
+        updateExportDirLabel();
+
+        const notesCollectionInput = document.getElementById("skr-analysis-notes-collection-name");
+        if (notesCollectionInput) {
+            let collectionName = Zotero.Prefs.get("extensions.zotero.skr.review.notesCollectionName") || "";
+            notesCollectionInput.value = collectionName;
+            notesCollectionInput.addEventListener("input", () => {
+                Zotero.Prefs.set("extensions.zotero.skr.review.notesCollectionName", notesCollectionInput.value.trim());
+            });
+        }
+
+        const exportDirBtn = document.getElementById("skr-analysis-export-dir-btn");
+        if (exportDirBtn) {
+            exportDirBtn.addEventListener("click", () => {
+                try {
+                    const nsIFilePicker = Components.interfaces.nsIFilePicker;
+                    let fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+                    
+                    let parentWin = null;
+                    if (window.browsingContext) {
+                        parentWin = window.browsingContext;
+                    } else if (typeof Zotero !== 'undefined' && Zotero.getMainWindow) {
+                        parentWin = Zotero.getMainWindow();
+                    } else {
+                        parentWin = window;
+                    }
+                    
+                    fp.init(parentWin, "Select Export Directory", nsIFilePicker.modeGetFolder);
+                    
+                    if (fp.open.length > 0) {
+                        fp.open((result) => {
+                            if (result === nsIFilePicker.returnOK) {
+                                Zotero.Prefs.set("extensions.zotero.skr.review.exportDir", fp.file.path);
+                                updateExportDirLabel();
+                            }
+                        });
+                    } else {
+                        fp.open().then((result) => {
+                            if (result === nsIFilePicker.returnOK) {
+                                Zotero.Prefs.set("extensions.zotero.skr.review.exportDir", fp.file.path);
+                                updateExportDirLabel();
+                            }
+                        });
+                    }
+                } catch (e) {
+                    Zotero.debug("[SKR] Error opening folder picker: " + e);
+                    // Fallback to manual entry if file picker fails due to sandbox
+                    let currentPath = Zotero.Prefs.get("extensions.zotero.skr.review.exportDir") || "";
+                    let newPath = prompt("Error launching native folder picker.\n\nPlease manually paste the absolute folder path below:", currentPath);
+                    if (newPath !== null && newPath.trim() !== "") {
+                        Zotero.Prefs.set("extensions.zotero.skr.review.exportDir", newPath.trim());
+                        updateExportDirLabel();
+                    }
+                }
+            });
+        }
+
         const updateFinalUrl = (forceUrl, forceProvider) => {
             let url_val = document.getElementById("llm-api-url-input").value;
             if (typeof forceUrl === 'string') url_val = forceUrl;

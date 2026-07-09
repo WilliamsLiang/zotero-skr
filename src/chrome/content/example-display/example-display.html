@@ -47,11 +47,16 @@
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-8">
   <div class="w-full max-w-6xl bg-white shadow-md rounded-xl p-6 space-y-6">
     <h1 class="text-2xl font-bold text-gray-800 text-center mb-4" data-l10n-id="skr-example-display-title"></h1>
+    <div id="auto-save-note-location" class="hidden rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+      <span class="font-semibold" data-l10n-id="skr-example-display-note-save-label"></span>
+      <span id="auto-save-note-location-text" class="break-all"></span>
+    </div>
     <!-- 按钮组 -->
-    <div class="flex justify-center gap-4">
+    <div class="flex justify-center gap-4 relative">
       <button onclick="showSection('section1')" id="btn1" class="tab-btn active-btn px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-100 transition" data-l10n-id="skr-example-display-question"></button>
       <button onclick="showSection('section2')" id="btn2" class="tab-btn px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-100 transition" data-l10n-id="skr-example-display-method"></button>
       <button onclick="showSection('section3')" id="btn3" class="tab-btn px-4 py-2 rounded-lg border border-gray-300 hover:bg-blue-100 transition" data-l10n-id="skr-example-display-design"></button>
+      <button onclick="window.exportToMarkdown()" id="btn-export" class="hidden px-4 py-2 rounded-lg border border-green-500 text-green-600 hover:bg-green-50 transition ml-4 font-bold">💾 Save (Export .md)</button>
     </div>
 
     <!-- 内容区域 -->

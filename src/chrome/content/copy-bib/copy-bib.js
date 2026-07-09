@@ -2,6 +2,7 @@ window.addEventListener("load", function() {
     let io = window.arguments && window.arguments.length > 0 ? window.arguments[0] : null;
     let dataIn = io ? io.dataIn : [];
     if (!dataIn || dataIn.length === 0) return;
+    const l10n = (key) => Zotero.skr && Zotero.skr.L10ns ? Zotero.skr.L10ns.getString(key) : key;
     
     let json = Zotero.Prefs.get("extensions.zotero.skr.review.customBibStyles");
     let customBibs = [];
@@ -9,7 +10,7 @@ window.addEventListener("load", function() {
         try { customBibs = JSON.parse(json); } catch(e) {}
     }
     if (customBibs.length === 0) {
-        customBibs = [{ name: "英文", styleID: "http://www.zotero.org/styles/apa" }];
+        customBibs = [{ name: "APA", styleID: "http://www.zotero.org/styles/apa" }];
     }
     
     let trigger = document.getElementById("custom-select-trigger");
@@ -51,10 +52,10 @@ window.addEventListener("load", function() {
     
     const generateBib = (styleID) => {
         let format = { mode: 'bibliography', id: styleID };
-        textarea.value = "Generating...";
+        textarea.value = l10n("skr-copy-bib-generating");
         
         Promise.resolve(Zotero.QuickCopy.getContentFromItems(dataIn, format)).then(content => {
-            let bibText = "Failed to generate bibliography.";
+            let bibText = l10n("skr-copy-bib-generate-failed");
             if (content) {
                 if (typeof content === "string") {
                     bibText = content;
@@ -71,7 +72,7 @@ window.addEventListener("load", function() {
             textarea.value = bibText;
             textarea.select();
         }).catch(err => {
-            textarea.value = "Error: " + err.message;
+            textarea.value = l10n("skr-copy-bib-error") + ": " + err.message;
         });
     };
     
@@ -86,7 +87,7 @@ window.addEventListener("load", function() {
         document.execCommand('copy');
         let copyBtn = document.getElementById("copyBtn");
         let oldText = copyBtn.textContent;
-        copyBtn.textContent = "Copied!";
+        copyBtn.textContent = l10n("skr-copy-bib-copied");
         setTimeout(() => { copyBtn.textContent = oldText; }, 2000);
     });
 });

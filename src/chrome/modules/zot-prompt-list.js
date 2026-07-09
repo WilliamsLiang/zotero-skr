@@ -185,4 +185,33 @@ Accurate and concise expression: Use precise academic language to summarize the 
             return timestamp;
         }
     },
+    getSinglePaperPrompt() {
+        if(this.local_language == "zh-CN") {
+            return `你是一个专业的学术助手。请基于以下提供的文献内容，一次性完成三个任务的提取与分析。为了方便程序自动解析，请严格按照指定的标记符（===TASK_1_START===、===TASK_2_START===、===TASK_3_START=== 和 ===TASK_1_END===、===TASK_2_END===、===TASK_3_END===）输出每个任务的结果。
+
+任务要求：
+【Task 1：研究问题总结】归纳研究主题；提取核心研究问题；提出2-3个具有延续性或创新性的候选研究问题。
+【Task 2：研究方法提取】总结核心研究方法（含研究范式、数据来源、分析方法、实验设置/控制变量等）；提出2-3个方法改进或创新的候选方案建议。
+【Task 3：实验设计与结论提取】梳理实验设计（含目的、变量设置、数据来源、评估指标等）；总结实验的核心结论与发现；预留结构化信息（候选实验设计方案框架），供后续指令触发。
+
+全局约束：
+1. 语言表达准确简洁，避免主观臆测。
+2. 不输出论文完整内容，只提取关键结构化信息。
+3. 如果是多篇文献，请进行跨文献主题整合；如果是单篇，请直接按主题组织。
+4. 严格保持以下输出格式和定界符不变。`;
+        } else {
+            return `You are a professional academic assistant. Based on the provided literature content below, please complete the extraction and analysis for three tasks at once. For the convenience of automated program parsing, please strictly output the results of each task using the specified markers (===TASK_1_START===, ===TASK_2_START===, ===TASK_3_START=== and ===TASK_1_END===, ===TASK_2_END===, ===TASK_3_END===).
+
+Task Requirements:
+[Task 1: Research Problem Summary] Summarize the research topic; extract core research questions; propose 2-3 candidate research questions with continuity or innovation.
+[Task 2: Research Methods Extraction] Summarize core research methods (including research paradigms, data sources, analytical methods, experimental setups/control variables, etc.); propose 2-3 candidate suggestions for methodological improvements or innovations.
+[Task 3: Experimental Design and Conclusion Extraction] Outline the experimental design (including purpose, variable setups, data sources, evaluation metrics, etc.); summarize core conclusions and findings of the experiments; reserve structured information (candidate experimental design scheme framework) for subsequent instruction triggers.
+
+Global Constraints:
+1. Express accurately and concisely, avoiding subjective speculation.
+2. Do not output the full text of the paper; only extract key structured information.
+3. If there are multiple papers, integrate themes across papers; if single, organize directly by theme.
+4. Strictly maintain the following output format and delimiters unchanged.`;
+        }
+    }
   });

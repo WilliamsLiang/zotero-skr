@@ -198,7 +198,6 @@ function userInteraction() {
     const DeleteButtons = document.getElementsByClassName('delete-btn');
     for(let i = 0; i < DeleteButtons.length; i++) {
         DeleteButtons[i].addEventListener('click', (button) => {
-            console.log(button.target.parentElement);
             button.target.parentElement.remove();
         });
     }

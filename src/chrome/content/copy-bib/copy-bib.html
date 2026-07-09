@@ -24,14 +24,14 @@
         <div class="btn-row" style="align-items: center; margin-bottom: 16px;">
             <div class="custom-select-wrapper" style="position: relative; width: 200px; margin-right: auto; user-select: none;">
                 <div id="custom-select-trigger" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: #374151; font-size: 14px;">
-                    <span id="custom-select-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 10px;">Select Format...</span>
+                    <span id="custom-select-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 10px;" data-l10n-id="skr-copy-bib-select-format"></span>
                     <span style="font-size: 12px;">▼</span>
                 </div>
                 <ul id="custom-select-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #d1d5db; border-radius: 6px; margin: 4px 0 0 0; padding: 0; list-style: none; max-height: 250px; overflow-y: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 9999;">
                 </ul>
             </div>
-            <button class="btn btn-close" onclick="window.close()">Close</button>
-            <button class="btn btn-copy" id="copyBtn">Copy Text</button>
+            <button class="btn btn-close" onclick="window.close()" data-l10n-id="skr-copy-bib-close"></button>
+            <button class="btn btn-copy" id="copyBtn" data-l10n-id="skr-copy-bib-copy"></button>
         </div>
         <textarea id="bibContent" readonly style="margin-bottom: 0;"></textarea>
     </div>

@@ -5,8 +5,8 @@
     </linkset>
 
     <!-- 输入组部分，包含API URL、API Key和模型输入框 -->
-    <groupbox style="display: flex; flex-direction: column; gap: 10px;">
-        <caption label="API Configuration" data-l10n-id="prefs-tab-api" />
+    <vbox style="display: flex; flex-direction: column; gap: 10px;">
+        <label data-l10n-id="prefs-tab-api" style="font-weight: bold; font-size: 1.1em;" />
         
         <!-- Provider Selection Dropdown -->
         <hbox style="display: flex; align-items: center;">
@@ -94,6 +94,47 @@
                 <button id="skr-bib-add-btn" data-l10n-id="prefs-bib-custom-add" style="flex-shrink: 0;" />
             </hbox>
         </vbox>
+        
+        <!-- 横线分割 -->
+        <html:hr style="width: 100%; border: none; border-top: 1px solid #ccc; margin: 10px 0;" />
+        
+        <vbox style="gap: 10px;">
+            <label style="font-weight: bold; font-size: 1.1em;" data-l10n-id="prefs-skr-analysis-title"></label>
+            
+            <!-- SKR 分析默认参考文献格式 -->
+            <hbox style="display: flex; align-items: center;">
+                <label data-l10n-id="prefs-skr-analysis-bib-label" style="min-width: 150px; margin-right: 10px;"></label>
+                <menulist id="skr-analysis-default-bib" preference="extensions.zotero.skr.review.defaultBibStyle" style="flex: 1; min-width: 0;" crop="end">
+                    <menupopup id="skr-analysis-default-bib-popup"></menupopup>
+                </menulist>
+            </hbox>
+            
+            <!-- SKR 分析默认保存路径 -->
+            <hbox style="display: flex; align-items: center; margin-top: 10px;">
+                <label data-l10n-id="prefs-skr-analysis-export-label" style="min-width: 150px; margin-right: 10px;"></label>
+                <label id="skr-analysis-export-dir-label" style="flex: 1; margin-right: 10px; color: #555;" value=""></label>
+                <button id="skr-analysis-export-dir-btn" data-l10n-id="prefs-skr-analysis-export-btn" />
+            </hbox>
 
-    </groupbox>
+            <!-- Multi-document SKR analysis note collection name -->
+            <hbox style="display: flex; align-items: center; margin-top: 10px;">
+                <label data-l10n-id="prefs-skr-analysis-notes-collection-label" style="min-width: 150px; margin-right: 10px;"></label>
+                <html:input
+                    type="text"
+                    id="skr-analysis-notes-collection-name"
+                    preference="extensions.zotero.skr.review.notesCollectionName"
+                    data-l10n-id="prefs-skr-analysis-notes-collection-placeholder"
+                    style="flex: 1;"
+                />
+            </hbox>
+            
+            <!-- 是否使用全文本 -->
+            <hbox style="display: flex; align-items: center; margin-top: 10px;">
+                <html:input type="checkbox" id="skr-analysis-use-fulltext" preference="extensions.zotero.skr.review.useFullText" style="margin-right: 5px;"/>
+                <label data-l10n-id="prefs-skr-analysis-use-fulltext-label" style="margin-right: 10px;"></label>
+                <label data-l10n-id="prefs-skr-analysis-use-fulltext-tooltip" style="font-size: 0.9em; color: #888; font-style: italic;"></label>
+            </hbox>
+        </vbox>
+
+    </vbox>
 </vbox>

@@ -40,7 +40,7 @@ Zotero.skr.SmartKnowledgeReview = {
 
 		// 增加到右键菜单的范例
 		let skr_menu_review_example = doc.createXULElement('menuitem');
-		skr_menu_review_example.id = 'smart-knowledge-example-dislay';
+		skr_menu_review_example.id = 'skr-knowledge-example-display';
 		skr_menu_review_example.setAttribute('type', 'checkbox');
 		skr_menu_review_example.setAttribute('label', Zotero.skr.L10ns.getString('smart-knowledge-example-dislay-right-key'));
 		// MozMenuItem#checked is available in Zotero 7
@@ -52,16 +52,16 @@ Zotero.skr.SmartKnowledgeReview = {
 		doc.getElementById('zotero-itemmenu').appendChild(skr_menu_review_example);
 		this.storeAddedElement(skr_menu_review_example);
 		
-		if (!doc.skrPopupShowingListenerAdded) {
+		if (!doc.skrPopupShowingListenerAddedNew) {
 			doc.getElementById('zotero-itemmenu').addEventListener('popupshowing', () => {
 				const items = Zotero.getActiveZoteroPane().getSelectedItems();
-				let elem = doc.getElementById('smart-knowledge-example-dislay');
+				let elem = doc.getElementById('skr-knowledge-example-display');
 				if (elem) {
-					// Hide if not exactly 1 regular item
-					elem.hidden = items.length !== 1 || !items[0].isRegularItem();
+					// Hide if no items selected, or if any selected item is not a regular item
+					elem.hidden = items.length === 0 || !items.every(i => i.isRegularItem());
 				}
 			});
-			doc.skrPopupShowingListenerAdded = true;
+			doc.skrPopupShowingListenerAddedNew = true;
 		}
 		
 		// 复制参考文献
@@ -117,6 +117,7 @@ Zotero.skr.SmartKnowledgeReview = {
 		let ids = [
 			'smart-knowledge-review-right-key',
 			'smart-knowledge-example-dislay',
+			'skr-knowledge-example-display',
 			'smart-knowledge-review-copy-bib',
 			'smart-knowledge-review-menu'
 		];
